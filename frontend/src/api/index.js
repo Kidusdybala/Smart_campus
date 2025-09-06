@@ -1,0 +1,193 @@
+const API_BASE = 'http://localhost:5001/api';
+
+class ApiClient {
+  constructor() {
+    this.token = localStorage.getItem('token');
+  }
+
+  setToken(token) {
+    this.token = token;
+    localStorage.setItem('token', token);
+  }
+
+  clearToken() {
+    this.token = null;
+    localStorage.removeItem('token');
+  }
+
+  async request(endpoint, options = {}) {
+    const url = `${API_BASE}${endpoint}`;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    if (this.token) {
+      config.headers.Authorization = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(error.error || 'Request failed');
+    }
+
+    return response.json();
+  }
+
+  // Auth
+  async login(email, password) {
+    const data = await this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    this.setToken(data.token);
+    return data;
+  }
+
+  async register(name, email, password, role) {
+    const data = await this.request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password, role }),
+    });
+    return data;
+  }
+
+  // QR
+  async scanQR(qrCode, location) {
+    return this.request('/qr/scan', {
+      method: 'POST',
+      body: JSON.stringify({ qrCode, location }),
+    });
+  }
+
+  async getMyQR() {
+    return this.request('/qr/my-qr');
+  }
+
+  async getScanHistory() {
+    return this.request('/qr/history');
+  }
+
+  // Food
+  async getMenu() {
+    return this.request('/food/menu');
+  }
+
+  async placeOrder(items) {
+    return this.request('/food/order', {
+      method: 'POST',
+      body: JSON.stringify({ items }),
+    });
+  }
+
+  async getOrders() {
+    return this.request('/food/orders');
+  }
+
+  // Parking
+  async getParkingSlots() {
+    return this.request('/parking');
+  }
+
+  async reserveSlot(slot, vehicleDetails) {
+    return this.request(`/parking/reserve/${slot}`, {
+      method: 'POST',
+      body: JSON.stringify(vehicleDetails),
+    });
+  }
+
+  async clearAllReservations() {
+    return this.request('/parking/clear-all', {
+      method: 'POST',
+    });
+  }
+
+  // Schedule
+  async getTodaySchedule() {
+    return this.request('/schedule/today');
+  }
+
+  async getAttendanceStats() {
+    return this.request('/schedule/attendance/stats');
+  }
+
+  async getSchedules() {
+    return this.request('/schedule');
+  }
+
+  async createSchedule(scheduleData) {
+    return this.request('/schedule', {
+      method: 'POST',
+      body: JSON.stringify(scheduleData),
+    });
+  }
+
+  async getCampusStatus() {
+    return this.request('/schedule/campus/status');
+  }
+
+  async getStaffDashboard() {
+    return this.request('/schedule/staff/dashboard');
+  }
+
+  async getAdminDashboard() {
+    return this.request('/schedule/admin/dashboard');
+  }
+
+  // Profile management
+  async updateProfile(profileData) {
+    return this.request('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  async changePassword(passwordData) {
+    return this.request('/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify(passwordData),
+    });
+  }
+
+  async updateVehicle(vehicleData) {
+    return this.request('/auth/vehicle', {
+      method: 'PUT',
+      body: JSON.stringify(vehicleData),
+    });
+  }
+
+  // Wallet and Payment
+  async getWalletBalance() {
+    return this.request('/payment/wallet');
+  }
+
+  async getPaymentHistory() {
+    return this.request('/payment/history');
+  }
+
+  async topupWallet(amount) {
+    return this.request('/payment/topup', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    });
+  }
+
+  async completePayment(paymentId) {
+    return this.request(`/payment/complete/${paymentId}`, {
+      method: 'POST',
+    });
+  }
+
+  async payForOrder(orderId) {
+    return this.request(`/payment/food-order/${orderId}`, {
+      method: 'POST',
+    });
+  }
+}
+
+export const api = new ApiClient();
