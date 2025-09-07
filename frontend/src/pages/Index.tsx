@@ -10,7 +10,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "student" | "staff" | "admin";
+  role: "student" | "staff" | "admin" | "cafeteria";
 };
 
 const Index = () => {
@@ -29,6 +29,9 @@ const Index = () => {
         break;
       case "admin":
         navigate("/admin");
+        break;
+      case "cafeteria":
+        navigate("/cafeteria");
         break;
       default:
         break;

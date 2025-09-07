@@ -100,6 +100,71 @@ router.post('/cancel/:slot', auth, async (req, res) => {
   }
 });
 
+// End parking session with payment
+router.post('/end/:slot', auth, async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+    const slot = await Parking.findOne({ slot: req.params.slot });
+    if (!slot) return res.status(404).json({ error: 'Slot not found' });
+
+    // Check if the slot belongs to the user
+    if (!slot.user || slot.user.toString() !== userId.toString()) {
+      return res.status(403).json({ error: 'You can only end your own parking sessions' });
+    }
+
+    const user = await require('../models/User').findById(userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Calculate duration and cost
+    const startTime = slot.reservedAt || new Date();
+    const endTime = new Date();
+    const durationMs = endTime - startTime;
+    const durationHours = durationMs / (1000 * 60 * 60);
+    const cost = Math.max(10, Math.ceil(durationHours * 10)); // 10 ETB per hour, minimum 10 ETB
+
+    // Check wallet balance
+    if (user.walletBalance < cost) {
+      return res.status(400).json({
+        error: 'Insufficient wallet balance',
+        required: cost,
+        available: user.walletBalance
+      });
+    }
+
+    // Deduct from wallet
+    user.walletBalance -= cost;
+    await user.save();
+
+    // Update slot
+    slot.status = 'available';
+    slot.user = null;
+    slot.endedAt = endTime;
+    await slot.save();
+
+    // Create payment record
+    const Payment = require('../models/Payment');
+    const payment = new Payment({
+      user: userId,
+      amount: cost,
+      type: 'parking',
+      status: 'completed',
+      paymentMethod: 'wallet',
+      description: `Parking payment for ${slot.slot} - ${durationHours.toFixed(2)} hours`
+    });
+    await payment.save();
+
+    res.json({
+      message: 'Parking session ended successfully',
+      cost,
+      duration: durationHours.toFixed(2),
+      newBalance: user.walletBalance,
+      paymentId: payment._id
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Admin add slots
 router.post('/', auth, roleAuth(['admin']), async (req, res) => {
   try {

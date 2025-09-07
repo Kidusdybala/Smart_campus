@@ -5,9 +5,15 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['student', 'staff', 'admin'], default: 'student' },
+  role: { type: String, enum: ['student', 'staff', 'admin', 'cafeteria'], default: 'student' },
   qrCode: { type: String, default: () => Math.random().toString(36).substr(2, 9) },
   walletBalance: { type: Number, default: 0 },
+  vehicle: {
+    plateNumber: { type: String },
+    carType: { type: String },
+    carModel: { type: String },
+    color: { type: String }
+  },
   createdAt: { type: Date, default: Date.now }
 });
 

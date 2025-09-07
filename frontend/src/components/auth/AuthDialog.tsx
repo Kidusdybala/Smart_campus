@@ -8,7 +8,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../api";
 
-type UserRole = "student" | "staff" | "admin";
+type UserRole = "student" | "staff" | "admin" | "cafeteria";
 type User = {
   id: string;
   name: string;
@@ -27,6 +27,7 @@ const defaultCredentials = {
   student: { email: "student@university.edu", password: "password123" },
   staff: { email: "staff@university.edu", password: "password123" },
   admin: { email: "admin@university.edu", password: "password123" },
+  cafeteria: { email: "cafeteria@university.edu", password: "password123" },
 };
 
 export function AuthDialog({ open, onClose, onAuthSuccess }: AuthDialogProps) {
@@ -87,12 +88,12 @@ export function AuthDialog({ open, onClose, onAuthSuccess }: AuthDialogProps) {
               <div><strong>Student:</strong> student@university.edu / password123</div>
               <div><strong>Staff:</strong> staff@university.edu / password123</div>
               <div><strong>Admin:</strong> admin@university.edu / password123</div>
+              <div><strong>Cafeteria:</strong> cafeteria@university.edu / password123</div>
             </div>
-            <div className="flex gap-2 mt-3">
+            <div className="grid grid-cols-2 gap-2 mt-3">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
                 onClick={() => handleDefaultLogin("student")}
               >
                 Student
@@ -100,7 +101,6 @@ export function AuthDialog({ open, onClose, onAuthSuccess }: AuthDialogProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
                 onClick={() => handleDefaultLogin("staff")}
               >
                 Staff
@@ -108,10 +108,16 @@ export function AuthDialog({ open, onClose, onAuthSuccess }: AuthDialogProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
                 onClick={() => handleDefaultLogin("admin")}
               >
                 Admin
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDefaultLogin("cafeteria")}
+              >
+                Cafeteria
               </Button>
             </div>
           </CardContent>

@@ -76,6 +76,12 @@ router.post('/topup', auth, async (req, res) => {
       return res.status(400).json({ error: 'Minimum top-up amount is 10 ETB' });
     }
 
+    // Cancel any existing pending payments for this user
+    await Payment.updateMany(
+      { user: req.user.id, status: 'pending', type: 'topup' },
+      { status: 'cancelled' }
+    );
+
     // Create payment record
     const payment = new Payment({
       user: req.user.id,
@@ -97,7 +103,8 @@ router.post('/topup', auth, async (req, res) => {
         last_name: user.lastName || 'User',
         tx_ref: payment._id.toString(),
         callback_url: `${process.env.BASE_URL || 'http://localhost:5001'}/api/payment/chapa/callback/${payment._id}`,
-        return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile/wallet`
+        return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile/wallet?paymentId=${payment._id}`,
+        cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile/wallet`
       }, {
         headers: {
           'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`,
@@ -169,13 +176,22 @@ router.post('/food-order/:orderId', auth, async (req, res) => {
     }
 
     const { orderId } = req.params;
-    const order = await Food.findById(orderId);
+    const { Order } = require('../models/Food');
+    const order = await Order.findById(orderId).populate('items.food');
 
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    const totalAmount = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // Verify order belongs to user
+    if (order.user.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Order does not belong to user' });
+    }
+
+    const totalAmount = order.total || order.items.reduce((sum, item) => {
+      return sum + (item.food.price * item.quantity);
+    }, 0);
+
     const currentBalance = user.walletBalance || 0;
 
     if (currentBalance < totalAmount) {
@@ -204,7 +220,7 @@ router.post('/food-order/:orderId', auth, async (req, res) => {
     await payment.save();
 
     // Update order status
-    order.status = 'paid';
+    order.status = 'preparing';
     await order.save();
 
     res.json({
@@ -213,6 +229,7 @@ router.post('/food-order/:orderId', auth, async (req, res) => {
       paymentId: payment._id
     });
   } catch (err) {
+    console.error('Payment error:', err);
     res.status(500).json({ error: err.message });
   }
 });

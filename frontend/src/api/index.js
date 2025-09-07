@@ -140,6 +140,10 @@ class ApiClient {
   }
 
   // Profile management
+  async getProfile() {
+    return this.request('/auth/profile');
+  }
+
   async updateProfile(profileData) {
     return this.request('/auth/profile', {
       method: 'PUT',
@@ -186,6 +190,18 @@ class ApiClient {
   async payForOrder(orderId) {
     return this.request(`/payment/food-order/${orderId}`, {
       method: 'POST',
+    });
+  }
+
+  // Cafeteria functions
+  async getAllOrders() {
+    return this.request('/food/all-orders');
+  }
+
+  async updateOrderStatus(orderId, status) {
+    return this.request(`/food/order/${orderId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
     });
   }
 }

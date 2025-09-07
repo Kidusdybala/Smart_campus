@@ -32,6 +32,28 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Get profile
+router.get('/profile', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        qrCode: user.qrCode,
+        vehicle: user.vehicle
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Update profile
 router.put('/profile', auth, async (req, res) => {
   try {
@@ -53,7 +75,8 @@ router.put('/profile', auth, async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        qrCode: user.qrCode
+        qrCode: user.qrCode,
+        vehicle: user.vehicle
       }
     });
   } catch (err) {
@@ -89,12 +112,17 @@ router.put('/password', auth, async (req, res) => {
 router.put('/vehicle', auth, async (req, res) => {
   try {
     const { plateNumber, carType, carModel, color } = req.body;
+    const user = await User.findById(req.user.id);
 
-    // You might want to store vehicle info in User model or create a separate Vehicle model
-    // For now, we'll just return success
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Update vehicle information
+    user.vehicle = { plateNumber, carType, carModel, color };
+    await user.save();
+
     res.json({
       message: 'Vehicle information updated successfully',
-      vehicle: { plateNumber, carType, carModel, color }
+      vehicle: user.vehicle
     });
   } catch (err) {
     res.status(400).json({ error: err.message });

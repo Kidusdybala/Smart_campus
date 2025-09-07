@@ -35,6 +35,12 @@ const seedDatabase = async () => {
         email: 'admin@university.edu',
         password: 'password123',
         role: 'admin'
+      },
+      {
+        name: 'Cafeteria Manager',
+        email: 'cafeteria@university.edu',
+        password: 'password123',
+        role: 'cafeteria'
       }
     ];
 
@@ -62,38 +68,83 @@ const seedDatabase = async () => {
     // Create food items
     const foodItems = [
       {
-        name: 'Classic Burger',
-        description: 'Beef patty with lettuce, tomato, and special sauce',
-        price: 12.99,
+        name: 'Doro Wat',
+        description: 'Slow-cooked Ethiopian chicken stew with berbere spice, onions, and hard-boiled eggs',
+        price: 250,
         category: 'mains',
+        image: '/doro.jpg',
         available: true
       },
       {
-        name: 'Chicken Caesar Salad',
-        description: 'Grilled chicken with romaine, parmesan, and caesar dressing',
-        price: 11.99,
+        name: 'Shiro',
+        description: 'Creamy chickpea flour stew cooked with Ethiopian spices and served with injera',
+        price: 150,
         category: 'mains',
+        image: '/shiro.jpg',
         available: true
       },
       {
-        name: 'Pasta Carbonara',
-        description: 'Creamy pasta with bacon and parmesan cheese',
-        price: 13.99,
+        name: 'Atekilt',
+        description: 'Traditional Ethiopian mixed vegetable stew with cabbage, carrots, and potatoes',
+        price: 150,
         category: 'mains',
+        image: '/atakilt.jpg',
         available: true
       },
       {
-        name: 'Caffe Latte',
-        description: 'Espresso with steamed milk and foam',
-        price: 4.99,
+        name: 'Agelgil Alicha',
+        description: 'Mild lamb stew with turmeric, garlic, and mixed vegetables, served with injera',
+        price: 350,
+        category: 'mains',
+        image: '/agelgil.jpg',
+        available: true
+      },
+      {
+        name: 'Kitfo',
+        description: 'Finely minced raw beef seasoned with mitmita spice and clarified butter',
+        price: 700,
+        category: 'mains',
+        image: '/kitfo.jpg',
+        available: true
+      },
+      {
+        name: 'Coca Cola',
+        description: 'Refreshing Coca Cola soft drink',
+        price: 50,
         category: 'drinks',
+        image: '/coca cola.jpg',
         available: true
       },
       {
-        name: 'Fresh Orange Juice',
-        description: 'Freshly squeezed orange juice',
-        price: 3.99,
+        name: 'Fanta',
+        description: 'Orange flavored Fanta soft drink',
+        price: 50,
         category: 'drinks',
+        image: '/fanta',
+        available: true
+      },
+      {
+        name: 'Sprite',
+        description: 'Lemon-lime Sprite soft drink',
+        price: 50,
+        category: 'drinks',
+        image: '/sprite.jpg',
+        available: true
+      },
+      {
+        name: 'Mirinda',
+        description: 'Fruit flavored Mirinda soft drink',
+        price: 50,
+        category: 'drinks',
+        image: '/mirinda',
+        available: true
+      },
+      {
+        name: 'Sofi Malta',
+        description: 'Traditional Sofi Malta malt drink',
+        price: 50,
+        category: 'drinks',
+        image: '/sofi malta.jpg',
         available: true
       }
     ];
@@ -109,6 +160,7 @@ const seedDatabase = async () => {
     console.log('Student: student@university.edu / password123');
     console.log('Staff: staff@university.edu / password123');
     console.log('Admin: admin@university.edu / password123');
+    console.log('Cafeteria: cafeteria@university.edu / password123');
 
   } catch (error) {
     console.error('Error seeding database:', error);

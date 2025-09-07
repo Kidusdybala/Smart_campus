@@ -6,6 +6,7 @@ const parkingSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   reservedAt: { type: Date },
   occupiedAt: { type: Date },
+  endedAt: { type: Date },
   vehicleDetails: {
     plateNumber: { type: String },
     carType: { type: String },

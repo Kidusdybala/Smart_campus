@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { ArrowLeft, UtensilsCrossed, Clock, Star, Plus, Minus, ShoppingCart } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { ArrowLeft, UtensilsCrossed, Clock, Star, Plus, Minus, ShoppingCart, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../api";
 
@@ -10,7 +13,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "student" | "staff" | "admin";
+  role: "student" | "staff" | "admin" | "cafeteria";
 };
 
 interface FoodOrderingProps {
@@ -27,29 +30,11 @@ const menuCategories = [
   },
   {
     id: "drinks",
-    name: "Beverages",
+    name: "Soft Drinks",
     items: []
   }
 ];
 
-const currentOrders = [
-  {
-    id: "order-1",
-    items: ["Chicken Caesar Salad"],
-    status: "ready",
-    orderTime: "12:30 PM",
-    pickupCode: "A47",
-    total: 11.99
-  },
-  {
-    id: "order-2", 
-    items: ["Classic Burger", "Caffe Latte"],
-    status: "preparing",
-    orderTime: "1:15 PM",
-    pickupCode: "B23",
-    total: 17.98
-  }
-];
 
 export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
   const [cart, setCart] = useState<{[key: string]: number}>({});
@@ -57,23 +42,45 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [walletBalance, setWalletBalance] = useState(0);
+  const [topupAmount, setTopupAmount] = useState("");
+  const [topupDialogOpen, setTopupDialogOpen] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [menu, wallet] = await Promise.all([
+        const [menu, wallet, userOrders] = await Promise.all([
           api.getMenu(),
-          api.getWalletBalance()
+          api.getWalletBalance(),
+          api.getOrders()
         ]);
         setMenuItems(menu);
         setWalletBalance(wallet.balance);
+        setOrders(userOrders);
+        checkForNotifications(userOrders);
       } catch (error) {
         toast.error("Failed to load data");
       } finally {
         setLoading(false);
+        setOrdersLoading(false);
       }
     };
     fetchData();
+
+    // Check for order updates every 30 seconds
+    const interval = setInterval(async () => {
+      try {
+        const updatedOrders = await api.getOrders();
+        checkForNotifications(updatedOrders);
+        setOrders(updatedOrders);
+      } catch (error) {
+        console.error("Failed to check order updates:", error);
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const addToCart = (itemId: string) => {
@@ -98,9 +105,7 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
 
   const getCartTotal = () => {
     return Object.entries(cart).reduce((total, [itemId, quantity]) => {
-      const item = menuCategories
-        .flatMap(cat => cat.items)
-        .find(item => item.id === itemId);
+      const item = menuItems.find(item => item._id === itemId);
       return total + (item?.price || 0) * quantity;
     }, 0);
   };
@@ -139,11 +144,70 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
         description: "You'll receive a notification when it's ready for pickup"
       });
 
-      // Update wallet balance
+      // Update wallet balance and refresh orders
       setWalletBalance(prev => prev - totalAmount);
       setCart({});
+
+      // Refresh orders
+      try {
+        const updatedOrders = await api.getOrders();
+        setOrders(updatedOrders);
+      } catch (error) {
+        console.error("Failed to refresh orders:", error);
+      }
     } catch (error) {
-      toast.error("Failed to place order");
+      console.error("Order placement error:", error);
+      toast.error("Failed to place order: " + (error.message || "Unknown error"));
+    }
+  };
+
+  const checkForNotifications = (currentOrders) => {
+    const readyOrders = currentOrders.filter(order => order.status === 'ready');
+    const newNotifications = readyOrders.map(order => ({
+      id: order._id,
+      message: `Your order #${order._id.slice(-6)} is ready for pickup!`,
+      type: 'ready',
+      orderId: order._id
+    }));
+
+    // Show notifications for new ready orders
+    newNotifications.forEach(notification => {
+      if (!notifications.find(n => n.id === notification.id)) {
+        toast.success(notification.message, {
+          duration: 10000,
+          action: {
+            label: "View Order",
+            onClick: () => {
+              // Scroll to order history section
+              document.getElementById('order-history')?.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+        });
+      }
+    });
+
+    setNotifications(newNotifications);
+  };
+
+  const topupWallet = async () => {
+    const amount = parseFloat(topupAmount);
+    if (!amount || amount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
+    try {
+      const paymentResponse = await api.topupWallet(amount);
+
+      if (paymentResponse.checkoutUrl) {
+        // Redirect to Chapa payment page
+        window.location.href = paymentResponse.checkoutUrl;
+      } else {
+        toast.error("Payment initialization failed");
+      }
+    } catch (error) {
+      console.error("Top-up error:", error);
+      toast.error("Failed to initialize payment: " + (error.message || "Unknown error"));
     }
   };
 
@@ -184,8 +248,44 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
             
             {/* Cart Button */}
             <div className="flex items-center gap-3">
-              <div className="text-white/80 text-sm">
-                Wallet: {walletBalance.toFixed(2)} ETB
+              <div className="flex items-center gap-2">
+                <div className="text-white/80 text-sm">
+                  Wallet: {walletBalance.toFixed(2)} ETB
+                </div>
+                <Dialog open={topupDialogOpen} onOpenChange={setTopupDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    >
+                      <CreditCard className="w-4 h-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Top Up Wallet</DialogTitle>
+                      <DialogDescription>
+                        Add funds to your wallet to pay for food orders.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="amount">Amount (ETB)</Label>
+                        <Input
+                          id="amount"
+                          type="number"
+                          placeholder="Enter amount"
+                          value={topupAmount}
+                          onChange={(e) => setTopupAmount(e.target.value)}
+                        />
+                      </div>
+                      <Button onClick={topupWallet} className="w-full">
+                        Top Up Wallet
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
               <Button
                 variant="outline"
@@ -235,7 +335,11 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
                               <CardContent className="p-6">
                                 <div className="flex items-start justify-between">
                                   <div className="flex gap-4">
-                                    <div className="text-4xl">🍽️</div>
+                                    <img
+                                      src={item.image}
+                                      alt={item.name}
+                                      className="w-16 h-16 object-cover rounded-lg"
+                                    />
                                     <div>
                                       <h3 className="font-semibold text-lg mb-1">{item.name}</h3>
                                       <p className="text-muted-foreground mb-2">{item.description}</p>
@@ -296,32 +400,42 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Current Orders */}
-            <Card className="shadow-card">
+            {/* Order History */}
+            <Card id="order-history" className="shadow-card">
               <CardHeader>
-                <CardTitle>Your Orders</CardTitle>
-                <CardDescription>Track your active orders</CardDescription>
+                <CardTitle>Order History</CardTitle>
+                <CardDescription>Your recent food orders</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {currentOrders.map((order) => (
-                    <div key={order.id} className="p-4 rounded-lg border">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-medium">Order #{order.pickupCode}</div>
-                        <Badge className={getStatusColor(order.status)}>
-                          {order.status === "ready" ? "Ready for Pickup!" : "Preparing"}
-                        </Badge>
+                {ordersLoading ? (
+                  <div className="text-center py-4">Loading orders...</div>
+                ) : orders.length === 0 ? (
+                  <div className="text-center py-4 text-muted-foreground">
+                    No orders yet. Place your first order!
+                  </div>
+                ) : (
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {orders.slice(0, 5).map((order) => (
+                      <div key={order._id} className="p-4 rounded-lg border">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="font-medium">Order #{order._id.slice(-6)}</div>
+                          <Badge className={getStatusColor(order.status)}>
+                            {order.status === "ready" ? "Ready for Pickup!" :
+                             order.status === "preparing" ? "Preparing" :
+                             order.status === "picked" ? "Completed" : "Ordered"}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground mb-2">
+                          {order.items.map(item => item.food.name).join(", ")}
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Ordered: {new Date(order.orderedAt).toLocaleString()}</span>
+                          <span className="font-medium">{order.total} ETB</span>
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground mb-2">
-                        {order.items.join(", ")}
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Ordered: {order.orderTime}</span>
-                        <span className="font-medium">${order.total}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -334,9 +448,7 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
                 <CardContent>
                   <div className="space-y-3">
                     {Object.entries(cart).map(([itemId, quantity]) => {
-                      const item = menuCategories
-                        .flatMap(cat => cat.items)
-                        .find(item => item.id === itemId);
+                      const item = menuItems.find(item => item._id === itemId);
                       if (!item) return null;
                       
                       return (
@@ -372,17 +484,17 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
-                    <span className="text-2xl">🥪</span>
+                    <span className="text-2xl">🍛</span>
                     <div>
-                      <div className="font-medium text-sm">Turkey Club</div>
-                      <div className="text-xs text-muted-foreground">$9.99</div>
+                      <div className="font-medium text-sm">Tibs</div>
+                      <div className="text-xs text-muted-foreground">200 ETB</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
-                    <span className="text-2xl">🍲</span>
+                    <span className="text-2xl">🥘</span>
                     <div>
-                      <div className="font-medium text-sm">Soup of the Day</div>
-                      <div className="text-xs text-muted-foreground">$6.99</div>
+                      <div className="font-medium text-sm">Misir Wat</div>
+                      <div className="text-xs text-muted-foreground">120 ETB</div>
                     </div>
                   </div>
                 </div>

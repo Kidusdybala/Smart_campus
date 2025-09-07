@@ -39,24 +39,33 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
     color: ''
   });
 
+  const [userVehicleInfo, setUserVehicleInfo] = useState(null);
+
   useEffect(() => {
-    const fetchSlots = async () => {
+    const fetchData = async () => {
       try {
         const slots = await api.getParkingSlots();
         setParkingSlots(slots);
 
         // Check if user already has a reservation
         const userReservedSlot = slots.find(slot =>
-          slot.user === user.id && (slot.status === 'reserved' || slot.status === 'occupied')
+          (slot.user === user.id || slot.vehicleDetails) && (slot.status === 'reserved' || slot.status === 'occupied')
         );
         setUserReservation(userReservedSlot || null);
+
+        // Load user's vehicle data
+        const profileResponse = await api.getProfile();
+        if (profileResponse.user && profileResponse.user.vehicle) {
+          setUserVehicleInfo(profileResponse.user.vehicle);
+          setVehicleDetails(profileResponse.user.vehicle);
+        }
       } catch (error) {
-        toast.error("Failed to load parking slots");
+        toast.error("Failed to load data");
       } finally {
         setLoading(false);
       }
     };
-    fetchSlots();
+    fetchData();
   }, [user.id]);
 
   const openReservationDialog = (slotId: string) => {
@@ -67,6 +76,12 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
       });
       return;
     }
+
+    // Ensure vehicle details are loaded from profile
+    if (userVehicleInfo) {
+      setVehicleDetails(userVehicleInfo);
+    }
+
     setReservationDialog({ open: true, slotId });
   };
 
@@ -96,7 +111,8 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
       setParkingSlots(slots);
 
       const newUserReservation = slots.find(slot =>
-        slot.user === user.id && (slot.status === 'reserved' || slot.status === 'occupied')
+        (slot.user === user.id || slot.vehicleDetails?.plateNumber === vehicleDetails.plateNumber) &&
+        (slot.status === 'reserved' || slot.status === 'occupied')
       );
       setUserReservation(newUserReservation || null);
     } catch (error) {
@@ -240,88 +256,121 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
                   <MapPin className="w-5 h-5" />
                   Main Campus Parking Area
                 </CardTitle>
-                <CardDescription>Real-time parking availability - Click on available spots to reserve</CardDescription>
+                <CardDescription className="mb-4">
+                  Real-time parking availability - Click on available spots to reserve
+                </CardDescription>
+ 
+                {/* Legend */}
+                <div className="flex flex-wrap gap-4 mb-4 p-3 bg-gray-50 rounded-lg border">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-gradient-to-br from-emerald-400 to-emerald-600 border border-emerald-700 rounded"></div>
+                    <span className="text-sm font-medium">Available</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-gradient-to-br from-amber-400 to-amber-600 border border-amber-700 rounded"></div>
+                    <span className="text-sm font-medium">Reserved</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-gradient-to-br from-red-400 to-red-600 border border-red-700 rounded"></div>
+                    <span className="text-sm font-medium">Occupied</span>
+                  </div>
+                  {userReservation && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-blue-400 bg-blue-100 rounded"></div>
+                      <span className="text-sm font-medium text-blue-600">Your Spot</span>
+                    </div>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="relative">
                   {/* Parking Lot Background */}
-                  <div className="w-full h-96 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-4 border-gray-200 relative overflow-hidden shadow-inner">
+                  <div className="w-full h-[500px] bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-4 border-gray-200 relative overflow-hidden shadow-inner">
                     {/* Road markings */}
                     <div className="absolute inset-x-0 top-1/2 h-1 bg-yellow-400 transform -translate-y-1/2 shadow-sm"></div>
                     <div className="absolute inset-x-0 top-1/2 h-1 bg-yellow-400 transform -translate-y-1/2 shadow-sm" style={{top: 'calc(50% + 8px)'}}></div>
 
                     {/* Parking spots grid */}
-                    <div className="grid grid-cols-6 gap-3 p-6 h-full">
+                    <div className="grid grid-cols-4 gap-3 p-6 h-full overflow-hidden">
                       {loading ? (
-                        <div className="col-span-6 flex items-center justify-center">
+                        <div className="col-span-4 flex items-center justify-center">
                           <div className="text-center">
-                            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="text-lg text-muted-foreground font-medium">Loading parking map...</p>
+                            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                            <p className="text-xl text-muted-foreground font-medium">Loading parking map...</p>
                           </div>
                         </div>
                       ) : (
-                        parkingSlots.slice(0, 24).map((slot, index) => (
+                        parkingSlots.slice(0, 16).map((slot, index) => (
                           <div
                             key={slot._id}
                             className={`
-                              relative group cursor-pointer transition-all duration-300 hover:scale-105 hover:z-10
+                              relative group cursor-pointer transition-all duration-300 hover:scale-110 hover:z-10
                               ${slot.status === 'available'
-                                ? (userReservation ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-xl hover:shadow-green-300/50')
+                                ? (userReservation ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-2xl hover:shadow-green-400/60')
                                 : slot.status === 'reserved'
-                                ? (slot.user === user.id ? 'ring-4 ring-blue-400 shadow-lg' : 'hover:shadow-xl hover:shadow-orange-300/50')
-                                : 'hover:shadow-xl hover:shadow-red-300/50'
+                                ? (slot.user === user.id || slot.vehicleDetails ? 'ring-4 ring-blue-400 shadow-xl' : 'hover:shadow-2xl hover:shadow-orange-400/60')
+                                : 'hover:shadow-2xl hover:shadow-red-400/60'
                               }
                             `}
                             onClick={() => slot.status === 'available' && !userReservation && openReservationDialog(slot.slot)}
                           >
                             {/* Parking spot visualization */}
                             <div className={`
-                              w-full h-16 rounded-lg border-3 transition-all duration-300 flex flex-col items-center justify-center relative overflow-hidden
+                              w-full h-20 rounded-xl border-4 transition-all duration-300 flex flex-col items-center justify-center relative overflow-hidden
                               ${slot.status === 'available'
-                                ? 'bg-gradient-to-br from-green-400 to-green-500 border-green-600 hover:from-green-500 hover:to-green-600 shadow-md'
+                                ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-emerald-600 border-emerald-700 hover:from-emerald-500 hover:via-green-600 hover:to-emerald-700 shadow-lg'
                                 : slot.status === 'reserved'
-                                ? 'bg-gradient-to-br from-orange-400 to-orange-500 border-orange-600 shadow-md'
-                                : 'bg-gradient-to-br from-red-400 to-red-500 border-red-600 shadow-md'
+                                ? 'bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 border-amber-700 shadow-lg'
+                                : 'bg-gradient-to-br from-red-400 via-rose-500 to-red-600 border-red-700 shadow-lg'
                               }
                             `}>
                               {/* Status indicators */}
-                              <div className="absolute top-1 right-1">
+                              <div className="absolute top-2 right-2">
                                 {slot.status === 'occupied' && (
-                                  <Car className="w-4 h-4 text-white drop-shadow-sm" />
+                                  <div className="w-6 h-6 bg-black/20 rounded-full flex items-center justify-center">
+                                    <Car className="w-4 h-4 text-white drop-shadow-lg" />
+                                  </div>
                                 )}
                                 {slot.status === 'reserved' && (
-                                  <Clock className="w-4 h-4 text-white drop-shadow-sm" />
+                                  <div className="w-6 h-6 bg-black/20 rounded-full flex items-center justify-center">
+                                    <Clock className="w-4 h-4 text-white drop-shadow-lg" />
+                                  </div>
                                 )}
                                 {slot.status === 'available' && (
-                                  <div className="w-4 h-4 bg-white/30 rounded-full flex items-center justify-center">
-                                    <CheckCircle className="w-3 h-3 text-white" />
+                                  <div className="w-6 h-6 bg-white/40 rounded-full flex items-center justify-center">
+                                    <CheckCircle className="w-4 h-4 text-white drop-shadow-lg" />
                                   </div>
                                 )}
                               </div>
 
                               {/* Spot number - prominently displayed */}
-                              <div className="text-white font-bold text-sm drop-shadow-lg">
+                              <div className="text-white font-bold text-lg drop-shadow-xl mb-1">
                                 {slot.slot}
                               </div>
 
                               {/* Status text */}
-                              <div className="text-white/90 text-xs font-medium drop-shadow-sm capitalize">
+                              <div className="text-white/95 text-sm font-semibold drop-shadow-xl capitalize">
                                 {slot.status}
                               </div>
+
+                              {/* Vehicle info for reserved spots */}
+                              {slot.vehicleDetails && (
+                                <div className="text-white/80 text-xs font-medium drop-shadow-lg mt-1">
+                                  {slot.vehicleDetails.plateNumber}
+                                </div>
+                              )}
                             </div>
 
                             {/* Enhanced hover tooltip */}
-                            <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-20 shadow-lg border border-gray-700">
-                              <div className="font-medium">
+                            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap z-20 shadow-2xl border-2 border-gray-700">
+                              <div className="font-semibold text-center">
                                 {slot.status === 'available'
                                   ? (userReservation ? '⚠️ Cancel current reservation first' : '✅ Click to reserve this spot')
-                                  : slot.user === user.id
-                                  ? '🔵 Your reservation'
-                                  : `🚫 ${slot.status}`
+                                  : (slot.user === user.id || slot.vehicleDetails) ? '🔵 Your reservation' : `🚫 ${slot.status}`
                                 }
                               </div>
                               {slot.vehicleDetails && (
-                                <div className="text-xs text-gray-300 mt-1">
+                                <div className="text-xs text-gray-300 mt-2 text-center">
                                   {slot.vehicleDetails.plateNumber} • {slot.vehicleDetails.carType}
                                 </div>
                               )}
@@ -331,29 +380,7 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
                       )}
                     </div>
 
-                    {/* Enhanced Legend */}
-                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-200">
-                      <div className="flex flex-wrap gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-gradient-to-br from-green-400 to-green-500 border border-green-600 rounded"></div>
-                          <span className="font-medium">Available</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-gradient-to-br from-orange-400 to-orange-500 border border-orange-600 rounded"></div>
-                          <span className="font-medium">Reserved</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-gradient-to-br from-red-400 to-red-500 border border-red-600 rounded"></div>
-                          <span className="font-medium">Occupied</span>
-                        </div>
-                        {userReservation && (
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-blue-400 bg-blue-100 rounded"></div>
-                            <span className="font-medium text-blue-600">Your Spot</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    {/* Legend moved outside the parking area */}
                   </div>
                 </div>
               </CardContent>
@@ -435,6 +462,22 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
                     <div className="text-sm text-green-700 mb-3">
                       Reserved at: {userReservation.reservedAt ? new Date(userReservation.reservedAt).toLocaleString() : 'Date not available'}
                     </div>
+                    <div className="text-sm text-green-700 mb-3">
+                      Duration: {userReservation.reservedAt ? (() => {
+                        const duration = Date.now() - new Date(userReservation.reservedAt).getTime();
+                        const hours = Math.floor(duration / (1000 * 60 * 60));
+                        const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+                        return `${hours}h ${minutes}m`;
+                      })() : 'N/A'}
+                    </div>
+                    <div className="text-sm text-green-700 mb-3">
+                      Estimated cost: {userReservation.reservedAt ? (() => {
+                        const duration = Date.now() - new Date(userReservation.reservedAt).getTime();
+                        const hours = duration / (1000 * 60 * 60);
+                        const cost = Math.max(10, Math.ceil(hours * 10));
+                        return `${cost} ETB`;
+                      })() : 'N/A'}
+                    </div>
                     {userReservation.vehicleDetails && (
                       <div className="text-sm text-green-700 mb-3">
                         <div><strong>Plate:</strong> {userReservation.vehicleDetails.plateNumber}</div>
@@ -443,41 +486,43 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
                       </div>
                     )}
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1 border-green-300 text-green-700 hover:bg-green-50">
-                        Extend Time
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 border-red-300 text-red-700 hover:bg-red-50"
-                        onClick={async () => {
-                          try {
-                            // Cancel reservation by setting status back to available
-                            const response = await fetch(`http://localhost:5001/api/parking/cancel/${userReservation.slot}`, {
-                              method: 'POST',
-                              headers: {
-                                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                                'Content-Type': 'application/json'
-                              }
-                            });
+                       <Button size="sm" variant="outline" className="flex-1 border-green-300 text-green-700 hover:bg-green-50">
+                         Extend Time
+                       </Button>
+                       <Button
+                         size="sm"
+                         variant="outline"
+                         className="flex-1 border-red-300 text-red-700 hover:bg-red-50"
+                         onClick={async () => {
+                           try {
+                             // End parking session with payment
+                             const response = await fetch(`http://localhost:5001/api/parking/end/${userReservation.slot}`, {
+                               method: 'POST',
+                               headers: {
+                                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                 'Content-Type': 'application/json'
+                               }
+                             });
 
-                            if (response.ok) {
-                              toast.success("Reservation cancelled");
-                              // Refresh data
-                              const slots = await api.getParkingSlots();
-                              setParkingSlots(slots);
-                              setUserReservation(null);
-                            } else {
-                              toast.error("Failed to cancel reservation");
-                            }
-                          } catch (error) {
-                            toast.error("Failed to cancel reservation");
-                          }
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
+                             const data = await response.json();
+
+                             if (response.ok) {
+                               toast.success(`Parking ended. Cost: ${data.cost} ETB`);
+                               // Refresh data
+                               const slots = await api.getParkingSlots();
+                               setParkingSlots(slots);
+                               setUserReservation(null);
+                             } else {
+                               toast.error(data.error || "Failed to end parking");
+                             }
+                           } catch (error) {
+                             toast.error("Failed to end parking");
+                           }
+                         }}
+                       >
+                         End Parking
+                       </Button>
+                     </div>
                   </div>
                 </CardContent>
               </Card>
@@ -613,58 +658,38 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
           <DialogHeader>
             <DialogTitle>Reserve Parking Spot {reservationDialog.slotId}</DialogTitle>
             <DialogDescription>
-              Please provide your vehicle details for security and verification purposes.
+              {userVehicleInfo
+                ? "Your vehicle details are pre-filled from your profile for convenience."
+                : "Please provide your vehicle details for security and verification purposes."
+              }
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="plateNumber">Plate Number *</Label>
-                <Input
-                  id="plateNumber"
-                  placeholder="ABC-123"
-                  value={vehicleDetails.plateNumber}
-                  onChange={(e) => setVehicleDetails(prev => ({ ...prev, plateNumber: e.target.value }))}
-                  required
-                />
+            <div className="bg-gray-50 p-4 rounded-lg border">
+              <h4 className="font-medium mb-3 text-gray-800 flex items-center gap-2">
+                Vehicle Details Confirmation
+                {userVehicleInfo && <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">From Profile</span>}
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">Plate Number</Label>
+                  <p className="text-lg font-semibold text-gray-800">{vehicleDetails.plateNumber || 'Not provided'}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">Car Type</Label>
+                  <p className="text-lg font-semibold text-gray-800 capitalize">{vehicleDetails.carType || 'Not provided'}</p>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="carType">Car Type *</Label>
-                <Select value={vehicleDetails.carType} onValueChange={(value) => setVehicleDetails(prev => ({ ...prev, carType: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sedan">Sedan</SelectItem>
-                    <SelectItem value="suv">SUV</SelectItem>
-                    <SelectItem value="hatchback">Hatchback</SelectItem>
-                    <SelectItem value="truck">Truck</SelectItem>
-                    <SelectItem value="motorcycle">Motorcycle</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="carModel">Car Model</Label>
-                <Input
-                  id="carModel"
-                  placeholder="Toyota Camry"
-                  value={vehicleDetails.carModel}
-                  onChange={(e) => setVehicleDetails(prev => ({ ...prev, carModel: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="color">Color</Label>
-                <Input
-                  id="color"
-                  placeholder="White"
-                  value={vehicleDetails.color}
-                  onChange={(e) => setVehicleDetails(prev => ({ ...prev, color: e.target.value }))}
-                />
+              <div className="grid grid-cols-2 gap-4 mt-3">
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">Car Model</Label>
+                  <p className="text-lg font-semibold text-gray-800">{vehicleDetails.carModel || 'Not provided'}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">Color</Label>
+                  <p className="text-lg font-semibold text-gray-800">{vehicleDetails.color || 'Not provided'}</p>
+                </div>
               </div>
             </div>
 

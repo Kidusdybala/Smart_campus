@@ -75,11 +75,21 @@ export function ProfilePage({ user }: ProfilePageProps) {
     // Check URL parameters for tab selection (fallback)
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
+    const paymentId = urlParams.get('paymentId');
     if (tabParam === 'wallet') {
       setActiveTab('wallet');
-      // Clean up URL
-      window.history.replaceState({}, '', window.location.pathname);
     }
+    if (paymentId) {
+      // Complete the payment
+      api.completePayment(paymentId).then(() => {
+        // Reload data
+        loadUserData();
+      }).catch((error) => {
+        console.error('Failed to complete payment:', error);
+      });
+    }
+    // Clean up URL
+    window.history.replaceState({}, '', window.location.pathname);
 
     // Load user's vehicle data and wallet information
     const loadUserData = async () => {
@@ -92,16 +102,27 @@ export function ProfilePage({ user }: ProfilePageProps) {
         const historyResponse = await api.getPaymentHistory();
         setPaymentHistory(historyResponse);
 
-        // You might want to add an API endpoint to get user profile data
-        // For now, we'll initialize with empty vehicle data
+        // Load profile data including vehicle
+        const profileResponse = await api.getProfile();
+        if (profileResponse.user.vehicle) {
+          setVehicleData(profileResponse.user.vehicle);
+        } else {
+          setVehicleData({
+            plateNumber: '',
+            carType: '',
+            carModel: '',
+            color: ''
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load user data:', error);
+        // Initialize with empty vehicle data on error
         setVehicleData({
           plateNumber: '',
           carType: '',
           carModel: '',
           color: ''
         });
-      } catch (error) {
-        console.error('Failed to load user data:', error);
       }
     };
 
@@ -183,7 +204,7 @@ export function ProfilePage({ user }: ProfilePageProps) {
       if (response.checkoutUrl) {
         // Redirect to Chapa checkout page
         toast.success("Redirecting to Chapa payment...");
-        window.location.href = response.checkoutUrl;
+        window.location.replace(response.checkoutUrl);
       } else {
         // Fallback for testing - complete payment immediately
         toast.success("Redirecting to payment...");
@@ -212,7 +233,7 @@ export function ProfilePage({ user }: ProfilePageProps) {
               variant="ghost"
               size="sm"
               className="text-white hover:bg-white/20"
-              onClick={() => window.history.back()}
+              onClick={() => window.location.href = '/student'}
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
