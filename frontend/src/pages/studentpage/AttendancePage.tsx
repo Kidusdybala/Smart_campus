@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Progress } from "../components/ui/progress";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { Progress } from "../../components/ui/progress";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
 import { ArrowLeft, TrendingUp, Calendar, Clock } from "lucide-react";
-import { api } from "../api";
+import { api } from "../../api";
 import { toast } from "sonner";
 
 type User = {

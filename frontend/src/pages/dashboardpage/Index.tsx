@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Badge } from "../../components/ui/badge";
 import { QrCode, UtensilsCrossed, Car, Calendar, LogIn } from "lucide-react";
-import heroImage from "../assets/hero-campus.jpg";
-import { AuthDialog } from "../components/auth/AuthDialog";
+import heroImage from "../../assets/hero-campus.jpg";
+import { AuthDialog } from "../../components/auth/AuthDialog";
 
 type User = {
   id: string;

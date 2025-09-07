@@ -1,4 +1,4 @@
-import { FoodOrdering } from "../components/food/FoodOrdering";
+import { FoodOrdering } from "../../components/food/FoodOrdering";
 
 type User = {
   id: string;

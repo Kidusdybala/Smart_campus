@@ -1,4 +1,4 @@
-import { QRScanner } from "../components/qr/QRScanner";
+import { QRScanner } from "../../components/qr/QRScanner";
 
 type User = {
   id: string;

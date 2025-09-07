@@ -76,52 +76,36 @@ export function AuthDialog({ open, onClose, onAuthSuccess }: AuthDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <Card className="border-dashed border-primary/30 bg-primary/5">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-primary">Test Credentials</CardTitle>
-            <CardDescription className="text-xs">
-              Use these credentials to test the system
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="text-xs font-mono space-y-2">
-              <div><strong>Student:</strong> student@university.edu / password123</div>
-              <div><strong>Staff:</strong> staff@university.edu / password123</div>
-              <div><strong>Admin:</strong> admin@university.edu / password123</div>
-              <div><strong>Cafeteria:</strong> cafeteria@university.edu / password123</div>
-            </div>
-            <div className="grid grid-cols-2 gap-2 mt-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDefaultLogin("student")}
-              >
-                Student
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDefaultLogin("staff")}
-              >
-                Staff
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDefaultLogin("admin")}
-              >
-                Admin
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDefaultLogin("cafeteria")}
-              >
-                Cafeteria
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDefaultLogin("student")}
+          >
+            Student
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDefaultLogin("staff")}
+          >
+            Staff
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDefaultLogin("admin")}
+          >
+            Admin
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDefaultLogin("cafeteria")}
+          >
+            Cafeteria
+          </Button>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">

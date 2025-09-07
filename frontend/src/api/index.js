@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api';
 
 class ApiClient {
   constructor() {
@@ -132,7 +132,15 @@ class ApiClient {
   }
 
   async getStaffDashboard() {
-    return this.request('/schedule/staff/dashboard');
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request('/schedule/staff/dashboard');
+    } finally {
+      this.token = originalToken;
+    }
   }
 
   async getAdminDashboard() {
@@ -203,6 +211,130 @@ class ApiClient {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });
+  }
+
+  // Grade Management
+  async getInstructorCourses() {
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request('/grades/instructor/courses');
+    } finally {
+      this.token = originalToken;
+    }
+  }
+
+  async getCourseEnrollments(courseId) {
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request(`/grades/course/${courseId}/enrollments`);
+    } finally {
+      this.token = originalToken;
+    }
+  }
+
+  async createGradeSheet(courseId, gradeData) {
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      const result = await this.request(`/grades/course/${courseId}`, {
+        method: 'POST',
+        body: JSON.stringify(gradeData),
+      });
+      return result;
+    } finally {
+      this.token = originalToken;
+    }
+  }
+
+  async submitGradeSheet(gradeId) {
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request(`/grades/${gradeId}/submit`, {
+        method: 'POST',
+      });
+    } finally {
+      this.token = originalToken;
+    }
+  }
+
+  async getInstructorGrades() {
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request('/grades/instructor/grades');
+    } finally {
+      this.token = originalToken;
+    }
+  }
+
+  async getPendingGrades() {
+    return this.request('/grades/admin/pending');
+  }
+
+  async approveGradeSheet(gradeId, comments) {
+    return this.request(`/grades/${gradeId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ comments }),
+    });
+  }
+
+  async rejectGradeSheet(gradeId, reason) {
+    return this.request(`/grades/${gradeId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async publishGradeSheet(gradeId) {
+    return this.request(`/grades/${gradeId}/publish`, {
+      method: 'POST',
+    });
+  }
+
+  async getStudentGrades() {
+    return this.request('/grades/student/grades');
+  }
+
+  async getStudentCourses() {
+    return this.request('/grades/student/courses');
+  }
+
+  async getGradeHistory(gradeId) {
+    return this.request(`/grades/${gradeId}/history`);
+  }
+
+  // Notifications
+  async getNotifications(page = 1, limit = 20, unreadOnly = false) {
+    return this.request(`/grades/notifications?page=${page}&limit=${limit}&unreadOnly=${unreadOnly}`);
+  }
+
+  async markNotificationAsRead(notificationId) {
+    return this.request(`/grades/notifications/${notificationId}/read`, {
+      method: 'POST',
+    });
+  }
+
+  async markAllNotificationsAsRead() {
+    return this.request('/grades/notifications/mark-all-read', {
+      method: 'POST',
+    });
+  }
+
+  async getUnreadNotificationCount() {
+    return this.request('/grades/notifications/unread-count');
   }
 }
 

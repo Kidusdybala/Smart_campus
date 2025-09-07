@@ -41,6 +41,10 @@ const paymentRoutes = require('./routes/payment');
 app.use('/api/payment', paymentRoutes);
 console.log('Payment routes registered at /api/payment');
 
+const gradeRoutes = require('./routes/grades');
+app.use('/api/grades', gradeRoutes);
+console.log('Grade routes registered at /api/grades');
+
 // DB connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/smartcampus')
   .then(() => console.log('MongoDB connected'))

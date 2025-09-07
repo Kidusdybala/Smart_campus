@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const User = require('./models/User');
 const Parking = require('./models/Parking');
 const { Food } = require('./models/Food');
+const Course = require('./models/Course');
+const Enrollment = require('./models/Enrollment');
+const Schedule = require('./models/Schedule');
 require('dotenv').config();
 
 const seedDatabase = async () => {
@@ -14,6 +17,9 @@ const seedDatabase = async () => {
     await User.deleteMany({});
     await Parking.deleteMany({});
     await Food.deleteMany({});
+    await Course.deleteMany({});
+    await Enrollment.deleteMany({});
+    await Schedule.deleteMany({});
     console.log('Cleared existing data');
 
     // Create users
@@ -44,10 +50,122 @@ const seedDatabase = async () => {
       }
     ];
 
+    const createdUsers = [];
     for (const userData of users) {
       const user = new User(userData);
       await user.save();
+      createdUsers.push(user);
       console.log(`Created user: ${userData.email}`);
+    }
+
+    // Get staff and student users
+    const staffUser = createdUsers.find(u => u.email === 'staff@university.edu');
+    const studentUser = createdUsers.find(u => u.email === 'student@university.edu');
+
+    // Create courses for the staff
+    const courses = [
+      {
+        name: 'Database',
+        code: 'CS101',
+        description: 'Introduction to Database Management Systems',
+        instructor: staffUser._id,
+        semester: 'Fall',
+        year: 2025,
+        credits: 3,
+        department: 'Computer Science',
+        maxStudents: 30,
+        status: 'active',
+        schedule: [
+          {
+            day: 'Monday',
+            startTime: '10:00',
+            endTime: '11:30',
+            room: 'CS-101'
+          },
+          {
+            day: 'Wednesday',
+            startTime: '10:00',
+            endTime: '11:30',
+            room: 'CS-101'
+          }
+        ]
+      },
+      {
+        name: 'Database 2',
+        code: 'CS201',
+        description: 'Advanced Database Concepts and Design',
+        instructor: staffUser._id,
+        semester: 'Fall',
+        year: 2025,
+        credits: 3,
+        department: 'Computer Science',
+        maxStudents: 25,
+        status: 'active',
+        schedule: [
+          {
+            day: 'Tuesday',
+            startTime: '14:00',
+            endTime: '15:30',
+            room: 'CS-201'
+          },
+          {
+            day: 'Thursday',
+            startTime: '14:00',
+            endTime: '15:30',
+            room: 'CS-201'
+          }
+        ]
+      }
+    ];
+
+    const createdCourses = [];
+    for (const courseData of courses) {
+      const course = new Course(courseData);
+      await course.save();
+      createdCourses.push(course);
+      console.log(`Created course: ${courseData.name}`);
+    }
+
+    // Create enrollments for the student
+    for (const course of createdCourses) {
+      const enrollment = new Enrollment({
+        student: studentUser._id,
+        course: course._id,
+        semester: course.semester,
+        year: course.year,
+        status: 'enrolled'
+      });
+      await enrollment.save();
+      console.log(`Enrolled student in: ${course.name}`);
+    }
+
+    // Create today's schedule based on the courses
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of today
+
+    const schedules = [
+      {
+        lecturer: staffUser._id,
+        subject: 'Database',
+        classroom: 'CS-101',
+        time: '10:00 AM - 11:30 AM',
+        date: today,
+        students: [studentUser._id]
+      },
+      {
+        lecturer: staffUser._id,
+        subject: 'Database 2',
+        classroom: 'CS-201',
+        time: '2:00 PM - 3:30 PM',
+        date: today,
+        students: [studentUser._id]
+      }
+    ];
+
+    for (const scheduleData of schedules) {
+      const schedule = new Schedule(scheduleData);
+      await schedule.save();
+      console.log(`Created schedule: ${scheduleData.subject} at ${scheduleData.time}`);
     }
 
     // Create parking slots

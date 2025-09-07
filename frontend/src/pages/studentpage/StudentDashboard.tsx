@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Badge } from "../../components/ui/badge";
+import { Progress } from "../../components/ui/progress";
 import {
   QrCode,
   UtensilsCrossed,
@@ -16,10 +16,12 @@ import {
   CheckCircle,
   AlertCircle,
   TrendingUp,
-  Wallet
+  Wallet,
+  GraduationCap
 } from "lucide-react";
-import { api } from "../api";
+import { api } from "../../api";
 import { toast } from "sonner";
+import { NotificationBell } from "../../components/ui/NotificationBell";
 
 type User = {
   id: string;
@@ -94,6 +96,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                 <p className="text-white/80 text-sm">Student Portal</p>
               </div>
             </div>
+            <NotificationBell userId={user.id} />
             <Button
               variant="outline"
               size="sm"
@@ -162,6 +165,19 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
               </div>
               <h3 className="font-semibold mb-1">Attendance</h3>
               <p className="text-sm text-muted-foreground">{attendanceData.percentage}% this semester</p>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="shadow-card hover:shadow-hover transition-all duration-300 cursor-pointer group"
+            onClick={() => navigate("/student/grades")}
+          >
+            <CardContent className="p-6 text-center">
+              <div className="w-12 h-12 bg-blue/10 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-blue/20 transition-colors">
+                <GraduationCap className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold mb-1">Grades</h3>
+              <p className="text-sm text-muted-foreground">View your academic results</p>
             </CardContent>
           </Card>
 

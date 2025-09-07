@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Badge } from "../../components/ui/badge";
+import { Progress } from "../../components/ui/progress";
 import {
   Shield,
   Users,
@@ -15,10 +15,12 @@ import {
   User,
   LogOut,
   Activity,
-  BarChart3
+  BarChart3,
+  FileText
 } from "lucide-react";
-import { api } from "../api";
+import { api } from "../../api";
 import { toast } from "sonner";
+import { NotificationBell } from "../../components/ui/NotificationBell";
 
 type User = {
   id: string;
@@ -67,6 +69,7 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
                 <p className="text-white/80 text-sm">Admin Console</p>
               </div>
             </div>
+            <NotificationBell userId={user.id} />
             <Button
               variant="outline"
               size="sm"
@@ -205,6 +208,75 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Admin Actions */}
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle>Admin Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={() => navigate('/admin/users')}
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Manage Users
+                </Button>
+                <Button
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={() => navigate('/admin/grades')}
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Grade Approval
+                </Button>
+                <Button
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={() => navigate('/admin/settings')}
+                >
+                  <Building className="w-4 h-4 mr-2" />
+                  Campus Settings
+                </Button>
+                <Button
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={async () => {
+                    if (window.confirm('Are you sure you want to clear ALL parking reservations? This action cannot be undone.')) {
+                      try {
+                        const result = await api.clearAllReservations();
+                        toast.success(`Cleared ${result.modifiedCount} reservations`);
+                        // Refresh dashboard data
+                        const data = await api.getAdminDashboard();
+                        setDashboardData(data);
+                      } catch (error) {
+                        toast.error('Failed to clear reservations');
+                      }
+                    }
+                  }}
+                >
+                  <Car className="w-4 h-4 mr-2" />
+                  Clear All Parking Reservations
+                </Button>
+                <Button
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={() => navigate('/admin/analytics')}
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Analytics
+                </Button>
+                <Button
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={() => navigate('/admin/health')}
+                >
+                  <Activity className="w-4 h-4 mr-2" />
+                  System Health
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* System Alerts */}
             <Card className="shadow-card">
               <CardHeader>
@@ -238,51 +310,6 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle>Admin Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button className="w-full justify-start" variant="outline">
-                  <Users className="w-4 h-4 mr-2" />
-                  Manage Users
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <Building className="w-4 h-4 mr-2" />
-                  Campus Settings
-                </Button>
-                <Button
-                  className="w-full justify-start"
-                  variant="outline"
-                  onClick={async () => {
-                    if (window.confirm('Are you sure you want to clear ALL parking reservations? This action cannot be undone.')) {
-                      try {
-                        const result = await api.clearAllReservations();
-                        toast.success(`Cleared ${result.modifiedCount} reservations`);
-                        // Refresh dashboard data
-                        const data = await api.getAdminDashboard();
-                        setDashboardData(data);
-                      } catch (error) {
-                        toast.error('Failed to clear reservations');
-                      }
-                    }
-                  }}
-                >
-                  <Car className="w-4 h-4 mr-2" />
-                  Clear All Parking Reservations
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Analytics
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <Activity className="w-4 h-4 mr-2" />
-                  System Health
-                </Button>
               </CardContent>
             </Card>
 

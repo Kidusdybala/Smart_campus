@@ -1,4 +1,4 @@
-import { ParkingView } from "../components/parking/ParkingView";
+import { ParkingView } from "../../components/parking/ParkingView";
 
 type User = {
   id: string;
