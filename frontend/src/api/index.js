@@ -8,7 +8,15 @@ class ApiClient {
 
   setToken(token) {
     this.token = token;
-    localStorage.setItem('token', token);
+    if (token) {
+      localStorage.setItem('token', token);
+    } else {
+      localStorage.removeItem('token');
+    }
+  }
+
+  refreshToken() {
+    this.token = localStorage.getItem('token');
   }
 
   setUser(user) {
@@ -31,8 +39,10 @@ class ApiClient {
       ...options,
     };
 
-    if (this.token) {
-      config.headers.Authorization = `Bearer ${this.token}`;
+    // Always check for the latest token from localStorage
+    const currentToken = this.token || localStorage.getItem('token');
+    if (currentToken) {
+      config.headers.Authorization = `Bearer ${currentToken}`;
     }
 
     try {

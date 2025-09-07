@@ -133,7 +133,7 @@ async function createLowBalanceNotification(userId, balance) {
 async function createPaymentPendingNotification(userId, amount, paymentType, paymentId) {
   const title = 'Payment Pending';
   let message = '';
-  
+
   switch (paymentType) {
     case 'topup':
       message = `Your wallet top-up of ${amount} ETB is being processed.`;
@@ -147,7 +147,7 @@ async function createPaymentPendingNotification(userId, amount, paymentType, pay
     default:
       message = `Your payment of ${amount} ETB is being processed.`;
   }
-  
+
   return createNotification(
     userId,
     'payment_pending',
@@ -158,10 +158,80 @@ async function createPaymentPendingNotification(userId, amount, paymentType, pay
   );
 }
 
+/**
+ * Create a food ready notification
+ * @param {string} userId - The recipient user ID
+ * @param {string} orderId - The order ID
+ * @param {Array} items - Array of ordered items
+ * @param {number} total - Total amount
+ * @returns {Promise<Object>} - The created notification
+ */
+async function createFoodReadyNotification(userId, orderId, items, total) {
+  const itemNames = items.map(item => item.food?.name || 'Unknown item').join(', ');
+  const title = 'Your Food is Ready!';
+  const message = `Your order (${itemNames}) is ready for pickup at the cafeteria. Total: ${total} ETB.`;
+
+  return createNotification(
+    userId,
+    'food_ready',
+    title,
+    message,
+    { orderId, items, total },
+    'high'
+  );
+}
+
+/**
+ * Create an order status update notification
+ * @param {string} userId - The recipient user ID
+ * @param {string} orderId - The order ID
+ * @param {string} status - New order status
+ * @param {Array} items - Array of ordered items
+ * @returns {Promise<Object>} - The created notification
+ */
+async function createOrderStatusNotification(userId, orderId, status, items) {
+  const itemNames = items.map(item => item.food?.name || 'Unknown item').join(', ');
+  let title = '';
+  let message = '';
+  let priority = 'medium';
+
+  switch (status) {
+    case 'preparing':
+      title = 'Order Being Prepared';
+      message = `Your order (${itemNames}) is now being prepared.`;
+      priority = 'medium';
+      break;
+    case 'ready':
+      title = 'Order Ready for Pickup';
+      message = `Your order (${itemNames}) is ready for pickup at the cafeteria.`;
+      priority = 'high';
+      break;
+    case 'picked':
+      title = 'Order Picked Up';
+      message = `Your order (${itemNames}) has been picked up successfully.`;
+      priority = 'low';
+      break;
+    default:
+      title = 'Order Status Update';
+      message = `Your order (${itemNames}) status has been updated to: ${status}.`;
+  }
+
+  return createNotification(
+    userId,
+    'order_ready',
+    title,
+    message,
+    { orderId, status, items },
+    priority
+  );
+}
+
 module.exports = {
   createNotification,
   createPaymentSuccessNotification,
   createPaymentFailedNotification,
   createLowBalanceNotification,
-  createPaymentPendingNotification
+  createPaymentPendingNotification,
+  createFoodReadyNotification,
+  createOrderStatusNotification
 };

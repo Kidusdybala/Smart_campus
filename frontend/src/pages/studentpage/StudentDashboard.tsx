@@ -58,10 +58,22 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   const refreshWalletBalance = async () => {
     if (user.role !== 'admin') {
       try {
+        // Ensure token is refreshed before making the request
+        api.refreshToken();
         const walletResult = await api.getWalletBalance();
         setWalletBalance(walletResult.balance || 0);
       } catch (err) {
         console.error('Wallet balance refresh error:', err);
+        // If token error, try to refresh and retry once
+        if (err.message === 'No token' || err.message?.includes('token')) {
+          try {
+            api.refreshToken();
+            const walletResult = await api.getWalletBalance();
+            setWalletBalance(walletResult.balance || 0);
+          } catch (retryErr) {
+            console.error('Wallet balance refresh retry error:', retryErr);
+          }
+        }
       }
     }
   };
@@ -101,9 +113,20 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         let walletResult = null;
         if (user.role !== 'admin') {
           try {
+            // Ensure token is refreshed before making the request
+            api.refreshToken();
             walletResult = await api.getWalletBalance();
           } catch (err) {
             console.error('Wallet balance error:', err);
+            // If token error, try to refresh and retry once
+            if (err.message === 'No token' || err.message?.includes('token')) {
+              try {
+                api.refreshToken();
+                walletResult = await api.getWalletBalance();
+              } catch (retryErr) {
+                console.error('Wallet balance retry error:', retryErr);
+              }
+            }
           }
         }
 

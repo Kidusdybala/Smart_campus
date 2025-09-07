@@ -6,6 +6,7 @@ import { MenuDisplay } from "./MenuDisplay";
 import { OrderHistory } from "./OrderHistory";
 import { CartSummary } from "./CartSummary";
 import { Recommendations } from "./Recommendations";
+import { useNavigate } from "react-router-dom";
 
 type User = {
   id: string;
@@ -35,16 +36,28 @@ const menuCategories = [
 
 
 export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
-  const [cart, setCart] = useState<{[key: string]: number}>({});
-  const [activeCategory, setActiveCategory] = useState("mains");
-  const [menuItems, setMenuItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [walletBalance, setWalletBalance] = useState(0);
-  const [topupAmount, setTopupAmount] = useState("");
-  const [topupDialogOpen, setTopupDialogOpen] = useState(false);
-  const [orders, setOrders] = useState([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
-  const [notifications, setNotifications] = useState([]);
+   const navigate = useNavigate();
+   const [cart, setCart] = useState<{[key: string]: number}>({});
+   const [activeCategory, setActiveCategory] = useState("mains");
+   const [menuItems, setMenuItems] = useState([]);
+   const [loading, setLoading] = useState(true);
+   const [walletBalance, setWalletBalance] = useState(0);
+   const [topupAmount, setTopupAmount] = useState("");
+   const [topupDialogOpen, setTopupDialogOpen] = useState(false);
+   const [orders, setOrders] = useState([]);
+   const [ordersLoading, setOrdersLoading] = useState(true);
+   const [notifications, setNotifications] = useState([]);
+
+  // Function to handle authentication errors
+  const handleAuthError = (error: Error | { message?: string }) => {
+    if (error.message && error.message.includes('User not found')) {
+      toast.error("Authentication error. Please log in again.");
+      api.clearToken();
+      navigate('/');
+      return true;
+    }
+    return false;
+  };
 
   // Function to refresh wallet balance
   const refreshWalletBalance = async () => {
@@ -53,6 +66,9 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
       setWalletBalance(walletResponse.balance);
     } catch (error) {
       console.error("Failed to refresh wallet balance:", error);
+      // Don't show error toast for wallet refresh failures
+      // as this might be due to authentication issues
+      handleAuthError(error);
     }
   };
 
@@ -61,7 +77,14 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
       try {
         const [menu, wallet, userOrders] = await Promise.all([
           api.getMenu(),
-          api.getWalletBalance(),
+          api.getWalletBalance().catch(err => {
+            console.error('Wallet balance error:', err);
+            if (!handleAuthError(err)) {
+              // Return default balance if wallet not found (not auth error)
+              return { balance: 0 };
+            }
+            return { balance: 0 };
+          }),
           api.getOrders()
         ]);
         setMenuItems(menu);
@@ -69,7 +92,10 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
         setOrders(userOrders);
         checkForNotifications(userOrders);
       } catch (error) {
-        toast.error("Failed to load data");
+        console.error('Failed to load data:', error);
+        if (!handleAuthError(error)) {
+          toast.error("Failed to load data. Some features may not work properly.");
+        }
       } finally {
         setLoading(false);
         setOrdersLoading(false);
@@ -173,8 +199,14 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
         setWalletBalance(paymentResponse.newBalance);
       } else {
         // Fallback: refresh wallet balance from server
-        const walletResponse = await api.getWalletBalance();
-        setWalletBalance(walletResponse.balance);
+        try {
+          const walletResponse = await api.getWalletBalance();
+          setWalletBalance(walletResponse.balance);
+        } catch (error) {
+          console.error("Failed to refresh wallet balance after payment:", error);
+          // Calculate new balance locally as fallback
+          setWalletBalance(prevBalance => Math.max(0, prevBalance - totalAmount));
+        }
       }
       setCart({});
 

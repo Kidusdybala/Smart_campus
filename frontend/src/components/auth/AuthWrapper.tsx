@@ -1,5 +1,6 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../../api';
 
 type User = {
   id: string;
@@ -34,6 +35,9 @@ export function AuthWrapper({ children, fallback }: AuthWrapperProps) {
           navigate('/');
           return;
         }
+
+        // Refresh the API client token to ensure it's up to date
+        api.refreshToken();
 
         setUser(parsedUser);
       } catch (error) {

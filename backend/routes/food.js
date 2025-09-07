@@ -129,13 +129,21 @@ router.put('/order/:orderId/status', auth, roleAuth(['admin', 'cafeteria']), asy
     const { orderId } = req.params;
     const { status } = req.body;
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate('items.food');
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
 
+    const previousStatus = order.status;
     order.status = status;
     await order.save();
+
+    // Send notification when order becomes ready
+    if (status === 'ready' && previousStatus !== 'ready') {
+      const { createOrderStatusNotification } = require('../utils/notification');
+      await createOrderStatusNotification(order.user.toString(), orderId, status, order.items);
+      console.log(`Notification sent to user ${order.user} for order ${orderId} status: ${status}`);
+    }
 
     res.json(order);
   } catch (err) {
