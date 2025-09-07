@@ -4,29 +4,35 @@ const { auth } = require('../middleware/auth');
 const User = require('../models/User');
 const Payment = require('../models/Payment');
 const { Food } = require('../models/Food');
+const { 
+  createPaymentSuccessNotification,
+  createPaymentFailedNotification,
+  createPaymentPendingNotification,
+  createLowBalanceNotification
+} = require('../utils/notification');
 
 const router = express.Router();
 
 console.log('Payment routes loaded successfully');
 
 // Get wallet balance
-router.get('/wallet', auth, async (req, res) => {
+router.get('/wallet', async (req, res) => {
   try {
-    console.log('Wallet route called with user ID:', req.user.id);
-    const user = await User.findById(req.user.id);
-    console.log('User found:', user ? user.email : 'null');
+    // For development, find student user by email
+    const studentUser = await User.findOne({ email: 'student@university.edu' });
+    console.log('Student user found:', studentUser ? studentUser.email : 'null');
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    if (!studentUser) {
+      return res.status(404).json({ error: 'Student user not found' });
     }
 
     // Only students and staff can have wallets
-    if (user.role === 'admin') {
+    if (studentUser.role === 'admin') {
       return res.status(403).json({ error: 'Admins do not have wallet access' });
     }
 
     // Handle case where walletBalance might not exist for existing users
-    const balance = user.walletBalance || 0;
+    const balance = studentUser.walletBalance || 0;
     console.log('Returning balance:', balance);
     res.json({ balance });
   } catch (err) {
@@ -92,6 +98,14 @@ router.post('/topup', auth, async (req, res) => {
     });
 
     await payment.save();
+    
+    // Create pending payment notification
+    await createPaymentPendingNotification(
+      req.user.id,
+      amount,
+      'topup',
+      payment._id
+    );
 
     // Integrate with Chapa API
     try {
@@ -149,11 +163,38 @@ router.post('/chapa/callback/:paymentId', async (req, res) => {
     payment.chapaTransactionId = req.body.tx_ref;
     await payment.save();
 
+    // Get user for notification
+    const user = await User.findById(payment.user);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
     if (req.body.status === 'success') {
       // Add funds to user wallet
-      const user = await User.findById(payment.user);
       user.walletBalance += payment.amount;
       await user.save();
+      
+      // Create success notification
+      await createPaymentSuccessNotification(
+        user._id,
+        payment.amount,
+        'topup',
+        payment._id
+      );
+      
+      // Check if balance is still low after top-up
+      if (user.walletBalance < 100) {
+        await createLowBalanceNotification(user._id, user.walletBalance);
+      }
+    } else {
+      // Create failure notification
+      await createPaymentFailedNotification(
+        user._id,
+        payment.amount,
+        'topup',
+        payment._id,
+        'Payment processing failed'
+      );
     }
 
     res.json({ message: `Payment ${req.body.status}` });
@@ -222,6 +263,19 @@ router.post('/food-order/:orderId', auth, async (req, res) => {
     // Update order status
     order.status = 'preparing';
     await order.save();
+    
+    // Create notification for successful payment
+    await createPaymentSuccessNotification(
+      user._id,
+      totalAmount,
+      'food_order',
+      payment._id
+    );
+    
+    // Check if wallet balance is low (less than 100 ETB) and notify
+    if (user.walletBalance < 100) {
+      await createLowBalanceNotification(user._id, user.walletBalance);
+    }
 
     res.json({
       message: 'Payment successful',

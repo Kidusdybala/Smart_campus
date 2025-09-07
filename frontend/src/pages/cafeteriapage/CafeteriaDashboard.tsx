@@ -3,6 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../..
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../components/ui/alert-dialog";
 import { ChefHat, Clock, CheckCircle, AlertCircle, Users, TrendingUp, LogOut } from "lucide-react";
 import { api } from "../../api";
 
@@ -138,15 +149,32 @@ export function CafeteriaDashboard({ user, onLogout }: CafeteriaDashboardProps) 
                  </div>
                )}
                {onLogout && (
-                 <Button
-                   variant="ghost"
-                   size="sm"
-                   onClick={onLogout}
-                   className="text-white hover:bg-white/20"
-                 >
-                   <LogOut className="w-4 h-4 mr-2" />
-                   Logout
-                 </Button>
+                 <AlertDialog>
+                   <AlertDialogTrigger asChild>
+                     <Button
+                       variant="ghost"
+                       size="sm"
+                       className="text-white hover:bg-white/20"
+                     >
+                       <LogOut className="w-4 h-4 mr-2" />
+                       Logout
+                     </Button>
+                   </AlertDialogTrigger>
+                   <AlertDialogContent>
+                     <AlertDialogHeader>
+                       <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+                       <AlertDialogDescription>
+                         You will be redirected to the login page and will need to sign in again to access your dashboard.
+                       </AlertDialogDescription>
+                     </AlertDialogHeader>
+                     <AlertDialogFooter>
+                       <AlertDialogCancel>Cancel</AlertDialogCancel>
+                       <AlertDialogAction onClick={onLogout}>
+                         Logout
+                       </AlertDialogAction>
+                     </AlertDialogFooter>
+                   </AlertDialogContent>
+                 </AlertDialog>
                )}
              </div>
           </div>

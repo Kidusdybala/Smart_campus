@@ -17,4 +17,11 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./frontend/src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
 }))

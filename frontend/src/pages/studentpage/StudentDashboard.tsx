@@ -5,6 +5,17 @@ import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Progress } from "../../components/ui/progress";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../components/ui/alert-dialog";
+import {
   QrCode,
   UtensilsCrossed,
   Car,
@@ -27,7 +38,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "student" | "staff" | "admin";
+  role: "student" | "staff" | "admin" | "cafeteria";
 };
 
 interface StudentDashboardProps {
@@ -46,32 +57,71 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const promises = [
-          api.getAttendanceStats(),
-          api.getTodaySchedule(),
-          api.getOrders(),
-          api.getCampusStatus()
-        ];
-
-        // Only fetch wallet balance for students and staff
-        if (user.role !== 'admin') {
-          promises.push(api.getWalletBalance());
+        // Make sure user object is valid before proceeding
+        if (!user || !user.id) {
+          console.error('Invalid user object:', user);
+          toast.error("User information is missing");
+          setLoading(false);
+          return;
         }
 
-        const [attendance, schedule, orders, status, wallet] = await Promise.all(promises);
+        // Use Promise.allSettled to handle partial failures
+        const promiseResults = await Promise.allSettled([
+          api.getAttendanceStats().catch(err => {
+            console.error('Attendance stats error:', err);
+            return { present: 0, total: 0, percentage: 0 };
+          }),
+          api.getTodaySchedule().catch(err => {
+            console.error('Schedule error:', err);
+            return [];
+          }),
+          api.getOrders().catch(err => {
+            console.error('Orders error:', err);
+            return [];
+          }),
+          api.getCampusStatus().catch(err => {
+            console.error('Campus status error:', err);
+            return null;
+          })
+        ]);
 
-        setAttendanceData(attendance);
-        setTodaySchedule(schedule);
-        setRecentOrders(orders.slice(0, 2)); // Get recent 2 orders
-        setCampusStatus(status);
+        // Handle wallet balance separately for non-admin users
+        let walletResult = null;
+        if (user.role !== 'admin') {
+          try {
+            walletResult = await api.getWalletBalance();
+          } catch (err) {
+            console.error('Wallet balance error:', err);
+          }
+        }
+
+        // Extract results from Promise.allSettled
+        const [attendanceResult, scheduleResult, ordersResult, statusResult] = promiseResults;
+
+        // Update state with successful results
+        if (attendanceResult.status === 'fulfilled') {
+          setAttendanceData(attendanceResult.value);
+        }
+        
+        if (scheduleResult.status === 'fulfilled') {
+          setTodaySchedule(scheduleResult.value);
+        }
+        
+        if (ordersResult.status === 'fulfilled') {
+          setRecentOrders(ordersResult.value.slice(0, 2)); // Get recent 2 orders
+        }
+        
+        if (statusResult.status === 'fulfilled') {
+          setCampusStatus(statusResult.value);
+        }
 
         // Set wallet balance only for non-admin users
-        if (user.role !== 'admin' && wallet) {
-          setWalletBalance(wallet.balance);
+        if (user.role !== 'admin' && walletResult) {
+          setWalletBalance(walletResult.balance || 0);
         }
       } catch (error) {
         toast.error("Failed to load dashboard data");
-        console.error(error);
+        console.error('Dashboard data error:', error);
       } finally {
         setLoading(false);
       }
@@ -79,6 +129,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
     fetchData();
   }, [user.role]);
+  
 
 
   return (
@@ -97,18 +148,37 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
               </div>
             </div>
             <NotificationBell userId={user.id} />
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              onClick={() => {
-                api.clearToken();
-                navigate("/");
-              }}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    You will be redirected to the login page and will need to sign in again to access your dashboard.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      api.clearToken();
+                      navigate("/");
+                    }}
+                  >
+                    Logout
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </header>

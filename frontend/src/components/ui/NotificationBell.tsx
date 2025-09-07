@@ -29,39 +29,58 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    loadNotifications();
-    loadUnreadCount();
-
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(() => {
+    // Only load notifications if userId is defined
+    if (userId) {
+      loadNotifications();
       loadUnreadCount();
-    }, 30000);
 
-    return () => clearInterval(interval);
-  }, []);
+      // Poll for new notifications every 30 seconds
+      const interval = setInterval(() => {
+        loadUnreadCount();
+      }, 30000);
+
+      return () => clearInterval(interval);
+    }
+  }, [userId]);
 
   const loadNotifications = async () => {
+    if (!userId) return;
+    
     try {
       setLoading(true);
       const response = await api.getNotifications(1, 10, false);
-      setNotifications(response.notifications);
+      if (response && response.notifications) {
+        setNotifications(response.notifications);
+      } else {
+        setNotifications([]);
+      }
     } catch (error) {
       console.error("Failed to load notifications:", error);
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
   };
 
   const loadUnreadCount = async () => {
+    if (!userId) return;
+    
     try {
       const response = await api.getUnreadNotificationCount();
-      setUnreadCount(response.count);
+      if (response && typeof response.count === 'number') {
+        setUnreadCount(response.count);
+      } else {
+        setUnreadCount(0);
+      }
     } catch (error) {
       console.error("Failed to load unread count:", error);
+      setUnreadCount(0);
     }
   };
 
   const markAsRead = async (notificationId: string) => {
+    if (!userId || !notificationId) return;
+    
     try {
       await api.markNotificationAsRead(notificationId);
       setNotifications(prev =>
@@ -72,17 +91,21 @@ export function NotificationBell({ userId }: NotificationBellProps) {
       setUnreadCount(prev => Math.max(0, prev - 1));
       toast.success("Notification marked as read");
     } catch (error) {
+      console.error("Failed to mark notification as read:", error);
       toast.error("Failed to mark notification as read");
     }
   };
 
   const markAllAsRead = async () => {
+    if (!userId) return;
+    
     try {
       await api.markAllNotificationsAsRead();
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
       toast.success("All notifications marked as read");
     } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
       toast.error("Failed to mark all notifications as read");
     }
   };

@@ -4,7 +4,7 @@ const notificationSchema = new mongoose.Schema({
   recipient: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   type: {
     type: String,
-    enum: ['grade_published', 'grade_rejected', 'assignment_due', 'course_announcement', 'system'],
+    enum: ['grade_published', 'grade_rejected', 'assignment_due', 'course_announcement', 'system', 'payment_success', 'payment_failed', 'wallet_topup', 'low_balance', 'payment_pending'],
     required: true
   },
   title: { type: String, required: true },

@@ -1,23 +1,25 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react-swc"
+import path from "path"
 
-// ESM-safe __dirname
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+// Frontend-level Vite config to ensure alias resolution when running in /frontend
+export default defineConfig({
   server: {
     host: "::",
     port: 5173,
   },
-  plugins: [
-    react(),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      // Map "@" to the frontend src directory
+      "@": path.resolve(__dirname, "./src"),
     },
   },
-}));
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
+})

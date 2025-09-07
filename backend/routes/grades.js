@@ -155,11 +155,12 @@ router.get('/admin/pending', async (req, res) => {
 });
 
 // Approve grade sheet
-router.post('/:gradeId/approve', async (req, res) => {
+router.post('/:gradeId/approve', auth, roleAuth(['admin']), async (req, res) => {
   try {
     const { comments } = req.body;
-    const gradeSheet = await Grade.findById(req.params.gradeId);
+    const gradeSheet = await Grade.findById(req.params.gradeId).populate('course', 'name');
     if (!gradeSheet) return res.status(404).json({ error: 'Grade sheet not found' });
+    if (!gradeSheet.course) return res.status(404).json({ error: 'Associated course not found' });
 
     // For development, find admin user
     const adminUser = await User.findOne({ email: 'admin@university.edu' });
@@ -198,7 +199,7 @@ router.post('/:gradeId/approve', async (req, res) => {
         title: 'New Grade Available',
         message: `Your ${gradeSheet.assessmentName} grade for ${gradeSheet.course.name} has been published: ${gradeEntry.grade}`,
         data: {
-          courseId: gradeSheet.course,
+          courseId: gradeSheet.course._id,
           gradeId: gradeSheet._id,
           assessmentType: gradeSheet.assessmentType,
           grade: gradeEntry.grade
@@ -215,6 +216,7 @@ router.post('/:gradeId/approve', async (req, res) => {
 
     res.json(gradeSheet);
   } catch (err) {
+    console.error('Error approving grade sheet:', err);
     res.status(500).json({ error: err.message });
   }
 });

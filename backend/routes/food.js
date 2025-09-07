@@ -71,9 +71,16 @@ router.post('/order', auth, async (req, res) => {
 });
 
 // Get user's orders
-router.get('/orders', auth, async (req, res) => {
+router.get('/orders', async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user.id }).populate('items.food');
+    // For development, find student user by email
+    const User = require('../models/User');
+    const studentUser = await User.findOne({ email: 'student@university.edu' });
+    if (!studentUser) {
+      return res.status(404).json({ error: 'Student user not found' });
+    }
+
+    const orders = await Order.find({ user: studentUser._id }).populate('items.food');
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: err.message });

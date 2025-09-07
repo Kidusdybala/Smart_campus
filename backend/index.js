@@ -45,6 +45,10 @@ const gradeRoutes = require('./routes/grades');
 app.use('/api/grades', gradeRoutes);
 console.log('Grade routes registered at /api/grades');
 
+const notificationRoutes = require('./routes/notifications');
+app.use('/api/notifications', notificationRoutes);
+console.log('Notification routes registered at /api/notifications');
+
 // DB connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/smartcampus')
   .then(() => console.log('MongoDB connected'))

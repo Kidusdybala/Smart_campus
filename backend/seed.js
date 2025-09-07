@@ -25,25 +25,25 @@ const seedDatabase = async () => {
     // Create users
     const users = [
       {
-        name: 'Alex Johnson',
+        name: 'Abebe Kebede',
         email: 'student@university.edu',
         password: 'password123',
         role: 'student'
       },
       {
-        name: 'Dr. Sarah Williams',
+        name: 'Dr. Meseret Bekele',
         email: 'staff@university.edu',
         password: 'password123',
         role: 'staff'
       },
       {
-        name: 'Michael Chen',
+        name: 'Solomon Gebremariam',
         email: 'admin@university.edu',
         password: 'password123',
         role: 'admin'
       },
       {
-        name: 'Cafeteria Manager',
+        name: 'Worknesh Alemu',
         email: 'cafeteria@university.edu',
         password: 'password123',
         role: 'cafeteria'
@@ -275,10 +275,10 @@ const seedDatabase = async () => {
 
     console.log('Database seeded successfully!');
     console.log('\nTest Credentials:');
-    console.log('Student: student@university.edu / password123');
-    console.log('Staff: staff@university.edu / password123');
-    console.log('Admin: admin@university.edu / password123');
-    console.log('Cafeteria: cafeteria@university.edu / password123');
+    console.log('Student (Abebe Kebede): student@university.edu / password123');
+    console.log('Staff (Dr. Meseret Bekele): staff@university.edu / password123');
+    console.log('Admin (Solomon Gebremariam): admin@university.edu / password123');
+    console.log('Cafeteria (Worknesh Alemu): cafeteria@university.edu / password123');
 
   } catch (error) {
     console.error('Error seeding database:', error);

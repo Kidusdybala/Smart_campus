@@ -53,28 +53,28 @@ export function UserManagementPage({ user }: UserManagementPageProps) {
       const mockUsers: User[] = [
         {
           id: "1",
-          name: "Alex Johnson",
+          name: "Abebe Kebede",
           email: "student@university.edu",
           role: "student",
           createdAt: "2025-01-15"
         },
         {
           id: "2",
-          name: "Dr. Sarah Williams",
+          name: "Dr. Meseret Bekele",
           email: "staff@university.edu",
           role: "staff",
           createdAt: "2025-01-10"
         },
         {
           id: "3",
-          name: "Michael Chen",
+          name: "Solomon Gebremariam",
           email: "admin@university.edu",
           role: "admin",
           createdAt: "2025-01-01"
         },
         {
           id: "4",
-          name: "Cafeteria Manager",
+          name: "Worknesh Alemu",
           email: "cafeteria@university.edu",
           role: "cafeteria",
           createdAt: "2025-01-12"

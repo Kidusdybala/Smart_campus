@@ -9,7 +9,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "student" | "staff" | "admin";
+  role: "student" | "staff" | "admin" | "cafeteria";
 };
 
 interface StudentGradesPageProps {
@@ -18,45 +18,6 @@ interface StudentGradesPageProps {
 
 export function StudentGradesPage({ user }: StudentGradesPageProps) {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Get user from localStorage or API
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/');
-          return;
-        }
-
-        // For now, we'll assume the user is authenticated
-        // In a real app, you'd validate the token
-        const userData = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!userData.id) {
-          navigate('/');
-          return;
-        }
-      } catch (error) {
-        navigate('/');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [navigate]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   if (!user) {
     return null;
