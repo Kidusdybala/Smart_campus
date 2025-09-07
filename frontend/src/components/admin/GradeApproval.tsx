@@ -56,9 +56,14 @@ export function GradeApproval({ user }: GradeApprovalProps) {
   const loadPendingGrades = async () => {
     try {
       const data = await api.getPendingGrades();
-      setPendingGrades(data);
+      // Ensure data is an array and filter out any invalid entries
+      const validData = Array.isArray(data) ? data.filter(grade =>
+        grade && grade._id && grade.course && grade.instructor
+      ) : [];
+      setPendingGrades(validData);
     } catch (error) {
       toast.error("Failed to load pending grades");
+      setPendingGrades([]); // Set empty array on error
     }
   };
 
@@ -217,7 +222,7 @@ export function GradeApproval({ user }: GradeApprovalProps) {
                       <div>
                         <h3 className="font-medium">{grade.assessmentName}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {grade.course.name} ({grade.course.code}) • {grade.instructor.name}
+                          {grade.course?.name || 'Unknown Course'} ({grade.course?.code || 'N/A'}) • {grade.instructor?.name || 'Unknown Instructor'}
                         </p>
                       </div>
                     </div>
@@ -249,7 +254,7 @@ export function GradeApproval({ user }: GradeApprovalProps) {
                         <DialogHeader>
                           <DialogTitle>{grade.assessmentName}</DialogTitle>
                           <DialogDescription>
-                            {grade.course.name} - Submitted by {grade.instructor.name}
+                            {grade.course?.name || 'Unknown Course'} - Submitted by {grade.instructor?.name || 'Unknown Instructor'}
                           </DialogDescription>
                         </DialogHeader>
 
@@ -345,7 +350,7 @@ export function GradeApproval({ user }: GradeApprovalProps) {
               {action === 'approve' ? 'Approve' : 'Reject'} Grade Sheet
             </DialogTitle>
             <DialogDescription>
-              {selectedGrade && `${selectedGrade.assessmentName} - ${selectedGrade.course.name}`}
+              {selectedGrade && `${selectedGrade.assessmentName} - ${selectedGrade.course?.name || 'Unknown Course'}`}
             </DialogDescription>
           </DialogHeader>
 

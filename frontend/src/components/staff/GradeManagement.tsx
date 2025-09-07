@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -78,6 +78,7 @@ export function GradeManagement({ user }: GradeManagementProps) {
   const [grades, setGrades] = useState<{[key: string]: GradeEntry}>({});
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadInstructorData();
@@ -146,6 +147,10 @@ export function GradeManagement({ user }: GradeManagementProps) {
       setCsvFile(file);
       parseCsvFile(file);
     }
+  };
+
+  const handleCsvButtonClick = () => {
+    fileInputRef.current?.click();
   };
 
   const parseCsvFile = (file: File) => {
@@ -406,16 +411,21 @@ export function GradeManagement({ user }: GradeManagementProps) {
                         <FileText className="w-4 h-4 mr-2" />
                         Download Template
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCsvButtonClick}
+                      >
                         <Upload className="w-4 h-4 mr-2" />
                         Upload CSV
-                        <input
-                          type="file"
-                          accept=".csv"
-                          onChange={handleCsvUpload}
-                          className="hidden"
-                        />
                       </Button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".csv"
+                        onChange={handleCsvUpload}
+                        className="hidden"
+                      />
                     </div>
                   </div>
 

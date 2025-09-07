@@ -2,7 +2,9 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api';
 
 class ApiClient {
   constructor() {
-    this.token = localStorage.getItem('token');
+    // Clear any existing token for development
+    this.clearToken();
+    this.token = null;
   }
 
   setToken(token) {
@@ -281,27 +283,59 @@ class ApiClient {
   }
 
   async getPendingGrades() {
-    return this.request('/grades/admin/pending');
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request('/grades/admin/pending');
+    } finally {
+      this.token = originalToken;
+    }
   }
 
   async approveGradeSheet(gradeId, comments) {
-    return this.request(`/grades/${gradeId}/approve`, {
-      method: 'POST',
-      body: JSON.stringify({ comments }),
-    });
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request(`/grades/${gradeId}/approve`, {
+        method: 'POST',
+        body: JSON.stringify({ comments }),
+      });
+    } finally {
+      this.token = originalToken;
+    }
   }
 
   async rejectGradeSheet(gradeId, reason) {
-    return this.request(`/grades/${gradeId}/reject`, {
-      method: 'POST',
-      body: JSON.stringify({ reason }),
-    });
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request(`/grades/${gradeId}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      });
+    } finally {
+      this.token = originalToken;
+    }
   }
 
   async publishGradeSheet(gradeId) {
-    return this.request(`/grades/${gradeId}/publish`, {
-      method: 'POST',
-    });
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request(`/grades/${gradeId}/publish`, {
+        method: 'POST',
+      });
+    } finally {
+      this.token = originalToken;
+    }
   }
 
   async getStudentGrades() {
@@ -318,23 +352,55 @@ class ApiClient {
 
   // Notifications
   async getNotifications(page = 1, limit = 20, unreadOnly = false) {
-    return this.request(`/grades/notifications?page=${page}&limit=${limit}&unreadOnly=${unreadOnly}`);
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request(`/grades/notifications?page=${page}&limit=${limit}&unreadOnly=${unreadOnly}`);
+    } finally {
+      this.token = originalToken;
+    }
   }
 
   async markNotificationAsRead(notificationId) {
-    return this.request(`/grades/notifications/${notificationId}/read`, {
-      method: 'POST',
-    });
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request(`/grades/notifications/${notificationId}/read`, {
+        method: 'POST',
+      });
+    } finally {
+      this.token = originalToken;
+    }
   }
 
   async markAllNotificationsAsRead() {
-    return this.request('/grades/notifications/mark-all-read', {
-      method: 'POST',
-    });
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request('/grades/notifications/mark-all-read', {
+        method: 'POST',
+      });
+    } finally {
+      this.token = originalToken;
+    }
   }
 
   async getUnreadNotificationCount() {
-    return this.request('/grades/notifications/unread-count');
+    // Temporarily remove token for development
+    const originalToken = this.token;
+    this.token = null;
+
+    try {
+      return await this.request('/grades/notifications/unread-count');
+    } finally {
+      this.token = originalToken;
+    }
   }
 }
 

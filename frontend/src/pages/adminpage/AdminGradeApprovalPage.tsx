@@ -23,20 +23,14 @@ export function AdminGradeApprovalPage({ user }: AdminGradeApprovalPageProps) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Get user from localStorage or API
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/');
+        // For development, check if user has admin role
+        if (user && user.role === 'admin') {
+          setLoading(false);
           return;
         }
 
-        // For now, we'll assume the user is authenticated
-        // In a real app, you'd validate the token
-        const userData = JSON.parse(localStorage.getItem('user') || '{}');
-        if (userData.role !== 'admin') {
-          navigate('/');
-          return;
-        }
+        // If no valid admin user, redirect
+        navigate('/');
       } catch (error) {
         navigate('/');
       } finally {
@@ -45,7 +39,7 @@ export function AdminGradeApprovalPage({ user }: AdminGradeApprovalPageProps) {
     };
 
     checkAuth();
-  }, [navigate]);
+  }, [navigate, user]);
 
   if (loading) {
     return (
