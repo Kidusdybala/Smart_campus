@@ -16,24 +16,30 @@ const router = express.Router();
 console.log('Payment routes loaded successfully');
 
 // Get wallet balance
-router.get('/wallet', async (req, res) => {
+router.get('/wallet', auth, async (req, res) => {
   try {
-    // For development, find student user by email
-    const studentUser = await User.findOne({ email: 'student@university.edu' });
-    console.log('Student user found:', studentUser ? studentUser.email : 'null');
-
-    if (!studentUser) {
-      return res.status(404).json({ error: 'Student user not found' });
+    console.log('Wallet balance request for user ID:', req.user.id);
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      console.log('User not found for ID:', req.user.id);
+      return res.status(404).json({ error: 'User not found' });
     }
 
+    console.log('Found user:', {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      walletBalance: user.walletBalance
+    });
+
     // Only students and staff can have wallets
-    if (studentUser.role === 'admin') {
+    if (user.role === 'admin') {
       return res.status(403).json({ error: 'Admins do not have wallet access' });
     }
 
     // Handle case where walletBalance might not exist for existing users
-    const balance = studentUser.walletBalance || 0;
-    console.log('Returning balance:', balance);
+    const balance = user.walletBalance || 0;
+    console.log('Returning balance for user', user.email + ':', balance);
     res.json({ balance });
   } catch (err) {
     console.log('Wallet route error:', err.message);
@@ -292,21 +298,50 @@ router.post('/food-order/:orderId', auth, async (req, res) => {
 router.post('/complete/:paymentId', auth, async (req, res) => {
   try {
     const { paymentId } = req.params;
+    console.log('Payment completion request for paymentId:', paymentId);
+    console.log('Authenticated user ID:', req.user.id);
+
     const payment = await Payment.findById(paymentId);
 
-    if (!payment || payment.user.toString() !== req.user.id) {
+    if (!payment) {
+      console.log('Payment not found:', paymentId);
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    console.log('Payment found:', {
+      id: payment._id,
+      user: payment.user,
+      amount: payment.amount,
+      status: payment.status,
+      type: payment.type
+    });
+
+    if (payment.user.toString() !== req.user.id) {
+      console.log('Payment user mismatch:', {
+        paymentUser: payment.user.toString(),
+        requestUser: req.user.id
+      });
       return res.status(404).json({ error: 'Payment not found' });
     }
 
     if (payment.status === 'completed') {
+      console.log('Payment already completed');
       return res.status(400).json({ error: 'Payment already completed' });
     }
 
     // Check user role
     const user = await User.findById(payment.user);
     if (!user) {
+      console.log('User not found for payment:', payment.user);
       return res.status(404).json({ error: 'User not found' });
     }
+
+    console.log('User found:', {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      currentBalance: user.walletBalance
+    });
 
     if (user.role === 'admin') {
       return res.status(403).json({ error: 'Admins cannot access wallet features' });
@@ -315,17 +350,76 @@ router.post('/complete/:paymentId', auth, async (req, res) => {
     // Update payment status
     payment.status = 'completed';
     await payment.save();
+    console.log('Payment status updated to completed');
 
     // Add funds to user wallet
     const currentBalance = user.walletBalance || 0;
     user.walletBalance = currentBalance + payment.amount;
     await user.save();
 
+    console.log('User wallet updated:', {
+      oldBalance: currentBalance,
+      newBalance: user.walletBalance,
+      amountAdded: payment.amount
+    });
+
     res.json({
       message: 'Payment completed successfully',
       newBalance: user.walletBalance
     });
   } catch (err) {
+    console.error('Payment completion error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Manual wallet balance update for testing/fixing
+router.post('/fix-balance', auth, async (req, res) => {
+  try {
+    console.log('Manual balance fix request for user ID:', req.user.id);
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Find all completed topup payments for this user that haven't been added to balance
+    const completedPayments = await Payment.find({
+      user: req.user.id,
+      type: 'topup',
+      status: 'completed'
+    });
+
+    console.log('Found completed payments:', completedPayments.length);
+
+    let totalAmount = 0;
+    for (const payment of completedPayments) {
+      // Check if this payment amount has already been added to balance
+      // For now, we'll recalculate the total from all completed payments
+      totalAmount += payment.amount;
+    }
+
+    console.log('Calculated total from completed payments:', totalAmount);
+
+    // Update user's wallet balance
+    const oldBalance = user.walletBalance || 0;
+    user.walletBalance = totalAmount;
+    await user.save();
+
+    console.log('Updated user balance:', {
+      oldBalance,
+      newBalance: user.walletBalance,
+      totalAdded: totalAmount
+    });
+
+    res.json({
+      message: 'Wallet balance fixed',
+      oldBalance,
+      newBalance: user.walletBalance,
+      paymentsProcessed: completedPayments.length
+    });
+  } catch (err) {
+    console.error('Balance fix error:', err);
     res.status(500).json({ error: err.message });
   }
 });

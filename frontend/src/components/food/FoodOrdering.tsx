@@ -46,6 +46,16 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
 
+  // Function to refresh wallet balance
+  const refreshWalletBalance = async () => {
+    try {
+      const walletResponse = await api.getWalletBalance();
+      setWalletBalance(walletResponse.balance);
+    } catch (error) {
+      console.error("Failed to refresh wallet balance:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -66,6 +76,22 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
       }
     };
     fetchData();
+
+    // Check URL for payment completion
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentId = urlParams.get('paymentId');
+    if (paymentId) {
+      // Complete the payment and refresh wallet balance
+      api.completePayment(paymentId).then(() => {
+        refreshWalletBalance();
+        toast.success("Payment completed successfully! Wallet balance updated.");
+      }).catch((error) => {
+        console.error('Failed to complete payment:', error);
+        toast.error("Failed to complete payment. Please contact support.");
+      });
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
 
     // Check for order updates every 30 seconds
     const interval = setInterval(async () => {
@@ -136,14 +162,20 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
       const orderResponse = await api.placeOrder(items);
 
       // Then pay using wallet
-      await api.payForOrder(orderResponse._id);
+      const paymentResponse = await api.payForOrder(orderResponse._id);
 
       toast.success("Order placed and paid successfully!", {
         description: "You'll receive a notification when it's ready for pickup"
       });
 
-      // Update wallet balance and refresh orders
-      setWalletBalance(prev => prev - totalAmount);
+      // Update wallet balance from server response and refresh orders
+      if (paymentResponse.newBalance !== undefined) {
+        setWalletBalance(paymentResponse.newBalance);
+      } else {
+        // Fallback: refresh wallet balance from server
+        const walletResponse = await api.getWalletBalance();
+        setWalletBalance(walletResponse.balance);
+      }
       setCart({});
 
       // Refresh orders

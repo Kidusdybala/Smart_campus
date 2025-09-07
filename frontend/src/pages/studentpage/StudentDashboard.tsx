@@ -54,6 +54,18 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   const [walletBalance, setWalletBalance] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Function to refresh wallet balance
+  const refreshWalletBalance = async () => {
+    if (user.role !== 'admin') {
+      try {
+        const walletResult = await api.getWalletBalance();
+        setWalletBalance(walletResult.balance || 0);
+      } catch (err) {
+        console.error('Wallet balance refresh error:', err);
+      }
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -102,15 +114,15 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         if (attendanceResult.status === 'fulfilled') {
           setAttendanceData(attendanceResult.value);
         }
-        
+
         if (scheduleResult.status === 'fulfilled') {
           setTodaySchedule(scheduleResult.value);
         }
-        
+
         if (ordersResult.status === 'fulfilled') {
           setRecentOrders(ordersResult.value.slice(0, 2)); // Get recent 2 orders
         }
-        
+
         if (statusResult.status === 'fulfilled') {
           setCampusStatus(statusResult.value);
         }
@@ -128,6 +140,28 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
     };
 
     fetchData();
+
+    // Refresh wallet balance every 30 seconds for non-admin users
+    let walletRefreshInterval;
+    if (user.role !== 'admin') {
+      walletRefreshInterval = setInterval(refreshWalletBalance, 30000);
+    }
+
+    // Refresh wallet balance when page becomes visible again
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user.role !== 'admin') {
+        refreshWalletBalance();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (walletRefreshInterval) {
+        clearInterval(walletRefreshInterval);
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [user.role]);
   
 

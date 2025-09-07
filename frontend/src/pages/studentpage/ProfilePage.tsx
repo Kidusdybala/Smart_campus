@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { ArrowLeft, User, Car, Lock, Wallet } from "lucide-react";
@@ -22,6 +23,9 @@ interface ProfilePageProps {
 }
 
 export function ProfilePage({ user }: ProfilePageProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [profileData, setProfileData] = useState({
     name: user.name,
     email: user.email,
@@ -58,10 +62,69 @@ export function ProfilePage({ user }: ProfilePageProps) {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
 
+  // Load user's vehicle data and wallet information
+  const loadUserData = async () => {
+    try {
+      // Load wallet balance
+      const walletResponse = await api.getWalletBalance();
+      setWalletData(prev => ({ ...prev, balance: walletResponse.balance }));
+
+      // Load payment history
+      const historyResponse = await api.getPaymentHistory();
+      setPaymentHistory(historyResponse);
+
+      // Load profile data including vehicle
+      const profileResponse = await api.getProfile();
+      if (profileResponse.user.vehicle) {
+        setVehicleData(profileResponse.user.vehicle);
+      } else {
+        setVehicleData({
+          plateNumber: '',
+          carType: '',
+          carModel: '',
+          color: ''
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+      // Initialize with empty vehicle data on error
+      setVehicleData({
+        plateNumber: '',
+        carType: '',
+        carModel: '',
+        color: ''
+      });
+    }
+  };
+
+  // Function to get the base profile path based on user role
+  const getBaseProfilePath = () => {
+    if (user.role === 'student') return '/student/profile';
+    if (user.role === 'staff') return '/staff/profile';
+    if (user.role === 'admin') return '/admin/profile';
+    return '/profile';
+  };
+
+  // Function to handle tab changes with navigation
+  const handleTabChange = (tab: string) => {
+    const basePath = getBaseProfilePath();
+    if (tab === 'profile') {
+      navigate(basePath);
+    } else {
+      navigate(`${basePath}/${tab}`);
+    }
+    setActiveTab(tab);
+  };
+
   useEffect(() => {
-    // Check URL path for tab selection
-    const path = window.location.pathname;
-    if (path.includes('/profile/vehicle')) {
+    // Check URL path for section selection
+    const path = location.pathname;
+
+    // Determine if we're on a specific section or general profile
+    if (path === '/profile' || path === '/student/profile' || path === '/staff/profile' || path === '/admin/profile') {
+      // General profile - show tabs
+      setActiveTab('profile');
+    } else if (path.includes('/profile/vehicle')) {
       setActiveTab('vehicle');
     } else if (path.includes('/profile/wallet')) {
       setActiveTab('wallet');
@@ -71,62 +134,26 @@ export function ProfilePage({ user }: ProfilePageProps) {
       setActiveTab('profile');
     }
 
-    // Check URL parameters for tab selection (fallback)
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
+    // Check URL parameters for payment completion
+    const urlParams = new URLSearchParams(location.search);
     const paymentId = urlParams.get('paymentId');
-    if (tabParam === 'wallet') {
-      setActiveTab('wallet');
-    }
     if (paymentId) {
-      // Complete the payment
+      // Complete the payment and reload data
       api.completePayment(paymentId).then(() => {
-        // Reload data
+        // Reload wallet and payment data after successful payment completion
         loadUserData();
+        toast.success("Payment completed successfully! Wallet balance updated.");
       }).catch((error) => {
         console.error('Failed to complete payment:', error);
+        toast.error("Failed to complete payment. Please contact support.");
       });
+      // Clean up URL
+      navigate(location.pathname, { replace: true });
     }
-    // Clean up URL
-    window.history.replaceState({}, '', window.location.pathname);
 
-    // Load user's vehicle data and wallet information
-    const loadUserData = async () => {
-      try {
-        // Load wallet balance
-        const walletResponse = await api.getWalletBalance();
-        setWalletData(prev => ({ ...prev, balance: walletResponse.balance }));
-
-        // Load payment history
-        const historyResponse = await api.getPaymentHistory();
-        setPaymentHistory(historyResponse);
-
-        // Load profile data including vehicle
-        const profileResponse = await api.getProfile();
-        if (profileResponse.user.vehicle) {
-          setVehicleData(profileResponse.user.vehicle);
-        } else {
-          setVehicleData({
-            plateNumber: '',
-            carType: '',
-            carModel: '',
-            color: ''
-          });
-        }
-      } catch (error) {
-        console.error('Failed to load user data:', error);
-        // Initialize with empty vehicle data on error
-        setVehicleData({
-          plateNumber: '',
-          carType: '',
-          carModel: '',
-          color: ''
-        });
-      }
-    };
-
+    // Load initial user data
     loadUserData();
-  }, [user.id]);
+  }, [user.id, location.pathname, location.search]);
 
   const handleProfileUpdate = async () => {
     setLoading(true);
@@ -206,17 +233,35 @@ export function ProfilePage({ user }: ProfilePageProps) {
         window.location.replace(response.checkoutUrl);
       } else {
         // Fallback for testing - complete payment immediately
-        toast.success("Redirecting to payment...");
+        toast.success("Processing payment...");
         await api.completePayment(response.paymentId);
         toast.success("Wallet topped up successfully!");
-        setWalletData(prev => ({ ...prev, balance: prev.balance + amount, topupAmount: '' }));
 
-        // Refresh payment history
-        const historyResponse = await api.getPaymentHistory();
-        setPaymentHistory(historyResponse);
+        // Clear the input and refresh all wallet data
+        setWalletData(prev => ({ ...prev, topupAmount: '' }));
+        await loadUserData();
       }
     } catch (error) {
       toast.error("Failed to top up wallet");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBalanceFix = async () => {
+    try {
+      setLoading(true);
+      // First call the fix balance API
+      const fixResult = await api.fixWalletBalance();
+      console.log('Balance fix result:', fixResult);
+
+      // Then reload all user data to get the updated balance
+      await loadUserData();
+
+      toast.success(`Wallet balance updated to ${fixResult.newBalance.toFixed(2)} ETB!`);
+    } catch (error) {
+      console.error('Balance fix error:', error);
+      toast.error('Failed to fix wallet balance. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -232,7 +277,12 @@ export function ProfilePage({ user }: ProfilePageProps) {
               variant="ghost"
               size="sm"
               className="text-white hover:bg-white/20"
-              onClick={() => window.location.href = '/student'}
+              onClick={() => {
+                if (user.role === 'student') navigate('/student');
+                else if (user.role === 'staff') navigate('/staff');
+                else if (user.role === 'admin') navigate('/admin');
+                else navigate('/');
+              }}
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
@@ -241,8 +291,30 @@ export function ProfilePage({ user }: ProfilePageProps) {
                 <User className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Profile Management</h1>
-                <p className="text-white/80 text-sm">Manage your account and vehicle information</p>
+                <h1 className="text-xl font-bold text-white">
+                  {location.pathname === '/profile' || location.pathname === '/student/profile' || location.pathname === '/staff/profile' || location.pathname === '/admin/profile'
+                    ? 'Profile Management'
+                    : activeTab === 'vehicle'
+                      ? 'Vehicle Information'
+                      : activeTab === 'wallet'
+                        ? 'Wallet Management'
+                        : activeTab === 'security'
+                          ? 'Security Settings'
+                          : 'Profile Information'
+                  }
+                </h1>
+                <p className="text-white/80 text-sm">
+                  {location.pathname === '/profile' || location.pathname === '/student/profile' || location.pathname === '/staff/profile' || location.pathname === '/admin/profile'
+                    ? 'Manage your account and vehicle information'
+                    : activeTab === 'vehicle'
+                      ? 'Manage your vehicle registration details'
+                      : activeTab === 'wallet'
+                        ? 'Manage your campus wallet and view transaction history'
+                        : activeTab === 'security'
+                          ? 'Update your password and security settings'
+                          : 'Update your personal information'
+                  }
+                </p>
               </div>
             </div>
           </div>
@@ -250,71 +322,178 @@ export function ProfilePage({ user }: ProfilePageProps) {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={`grid w-full ${user.role !== 'admin' ? 'grid-cols-4' : 'grid-cols-3'}`}>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              Profile
-            </TabsTrigger>
-            <TabsTrigger value="vehicle" className="flex items-center gap-2">
-              <Car className="w-4 h-4" />
-              Vehicle
-            </TabsTrigger>
-            {user.role !== 'admin' && (
-              <TabsTrigger value="wallet" className="flex items-center gap-2">
-                <Wallet className="w-4 h-4" />
-                Wallet
+        {/* Only show tabs when on general /profile route */}
+        {location.pathname === '/profile' || location.pathname === '/student/profile' || location.pathname === '/staff/profile' || location.pathname === '/admin/profile' ? (
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+            <TabsList className={`grid w-full ${user.role !== 'admin' ? 'grid-cols-4' : 'grid-cols-3'}`}>
+              <TabsTrigger value="profile" className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Profile
               </TabsTrigger>
+              <TabsTrigger value="vehicle" className="flex items-center gap-2">
+                <Car className="w-4 h-4" />
+                Vehicle
+              </TabsTrigger>
+              {user.role !== 'admin' && (
+                <TabsTrigger value="wallet" className="flex items-center gap-2">
+                  <Wallet className="w-4 h-4" />
+                  Wallet
+                </TabsTrigger>
+              )}
+              <TabsTrigger value="security" className="flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                Security
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Profile Tab */}
+            <TabsContent value="profile" className="space-y-6">
+              <ProfileTab
+                profileData={profileData}
+                onProfileDataChange={setProfileData}
+                onUpdate={handleProfileUpdate}
+                loading={loading}
+              />
+            </TabsContent>
+
+            {/* Vehicle Tab */}
+            <TabsContent value="vehicle" className="space-y-6">
+              <VehicleTab
+                vehicleData={vehicleData}
+                onVehicleDataChange={setVehicleData}
+                onUpdate={handleVehicleUpdate}
+                loading={loading}
+              />
+            </TabsContent>
+
+            {/* Security Tab */}
+            <TabsContent value="security" className="space-y-6">
+              <SecurityTab
+                passwordData={passwordData}
+                onPasswordDataChange={setPasswordData}
+                onPasswordChange={handlePasswordChange}
+                loading={loading}
+              />
+            </TabsContent>
+
+            {/* Wallet Tab - Only for students and staff */}
+            {user.role !== 'admin' && (
+              <TabsContent value="wallet" className="space-y-6">
+                <WalletTab
+                  walletData={walletData}
+                  onWalletDataChange={setWalletData}
+                  onTopup={handleWalletTopup}
+                  loading={loading}
+                  paymentHistory={paymentHistory}
+                  onBalanceFix={handleBalanceFix}
+                />
+              </TabsContent>
             )}
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              <Lock className="w-4 h-4" />
-              Security
-            </TabsTrigger>
-          </TabsList>
+          </Tabs>
+        ) : (
+          /* Show specific section content for direct routes */
+          <div className="space-y-6">
+            {/* Show section header for specific routes */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-foreground">
+                {activeTab === 'vehicle' && 'Vehicle Information'}
+                {activeTab === 'wallet' && 'Wallet Management'}
+                {activeTab === 'security' && 'Security Settings'}
+                {activeTab === 'profile' && 'Profile Information'}
+              </h2>
+              <p className="text-muted-foreground mt-1">
+                {activeTab === 'vehicle' && 'Manage your vehicle registration details'}
+                {activeTab === 'wallet' && 'Manage your campus wallet and view transaction history'}
+                {activeTab === 'security' && 'Update your password and security settings'}
+                {activeTab === 'profile' && 'Update your personal information'}
+              </p>
+            </div>
 
-          {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6">
-            <ProfileTab
-              profileData={profileData}
-              onProfileDataChange={setProfileData}
-              onUpdate={handleProfileUpdate}
-              loading={loading}
-            />
-          </TabsContent>
+            {/* Add navigation buttons for direct routes */}
+            <div className="flex gap-2 mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleTabChange('profile')}
+                className={activeTab === 'profile' ? 'bg-primary text-primary-foreground' : ''}
+              >
+                <User className="w-4 h-4 mr-2" />
+                Profile
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleTabChange('vehicle')}
+                className={activeTab === 'vehicle' ? 'bg-primary text-primary-foreground' : ''}
+              >
+                <Car className="w-4 h-4 mr-2" />
+                Vehicle
+              </Button>
+              {user.role !== 'admin' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleTabChange('wallet')}
+                  className={activeTab === 'wallet' ? 'bg-primary text-primary-foreground' : ''}
+                >
+                  <Wallet className="w-4 h-4 mr-2" />
+                  Wallet
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleTabChange('security')}
+                className={activeTab === 'security' ? 'bg-primary text-primary-foreground' : ''}
+              >
+                <Lock className="w-4 h-4 mr-2" />
+                Security
+              </Button>
+            </div>
 
-          {/* Vehicle Tab */}
-          <TabsContent value="vehicle" className="space-y-6">
-            <VehicleTab
-              vehicleData={vehicleData}
-              onVehicleDataChange={setVehicleData}
-              onUpdate={handleVehicleUpdate}
-              loading={loading}
-            />
-          </TabsContent>
+            {/* Profile Section */}
+            {activeTab === 'profile' && (
+              <ProfileTab
+                profileData={profileData}
+                onProfileDataChange={setProfileData}
+                onUpdate={handleProfileUpdate}
+                loading={loading}
+              />
+            )}
 
-          {/* Security Tab */}
-          <TabsContent value="security" className="space-y-6">
-            <SecurityTab
-              passwordData={passwordData}
-              onPasswordDataChange={setPasswordData}
-              onPasswordChange={handlePasswordChange}
-              loading={loading}
-            />
-          </TabsContent>
+            {/* Vehicle Section */}
+            {activeTab === 'vehicle' && (
+              <VehicleTab
+                vehicleData={vehicleData}
+                onVehicleDataChange={setVehicleData}
+                onUpdate={handleVehicleUpdate}
+                loading={loading}
+              />
+            )}
 
-          {/* Wallet Tab - Only for students and staff */}
-          {user.role !== 'admin' && (
-            <TabsContent value="wallet" className="space-y-6">
+            {/* Security Section */}
+            {activeTab === 'security' && (
+              <SecurityTab
+                passwordData={passwordData}
+                onPasswordDataChange={setPasswordData}
+                onPasswordChange={handlePasswordChange}
+                loading={loading}
+              />
+            )}
+
+            {/* Wallet Section - Only for students and staff */}
+            {activeTab === 'wallet' && user.role !== 'admin' && (
               <WalletTab
                 walletData={walletData}
                 onWalletDataChange={setWalletData}
                 onTopup={handleWalletTopup}
                 loading={loading}
                 paymentHistory={paymentHistory}
+                onBalanceFix={handleBalanceFix}
               />
-            </TabsContent>
-          )}
-        </Tabs>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

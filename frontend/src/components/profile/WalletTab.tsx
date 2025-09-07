@@ -2,7 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { CreditCard, History, Plus } from "lucide-react";
+import { CreditCard, History, Plus, Wrench } from "lucide-react";
+import { api } from "../../api";
+import { toast } from "sonner";
 
 interface WalletData {
   balance: number;
@@ -24,9 +26,23 @@ interface WalletTabProps {
   onTopup: () => Promise<void>;
   loading: boolean;
   paymentHistory: PaymentHistory[];
+  onBalanceFix?: () => Promise<void>;
 }
 
-export function WalletTab({ walletData, onWalletDataChange, onTopup, loading, paymentHistory }: WalletTabProps) {
+export function WalletTab({ walletData, onWalletDataChange, onTopup, loading, paymentHistory, onBalanceFix }: WalletTabProps) {
+  const handleFixBalance = async () => {
+    try {
+      const result = await api.fixWalletBalance();
+      toast.success(`Wallet balance fixed! New balance: ${result.newBalance.toFixed(2)} ETB`);
+      // Trigger parent component to refresh data
+      if (onBalanceFix) {
+        await onBalanceFix();
+      }
+    } catch (error) {
+      toast.error("Failed to fix wallet balance");
+      console.error("Balance fix error:", error);
+    }
+  };
   return (
     <>
       <Card>
@@ -70,6 +86,24 @@ export function WalletTab({ walletData, onWalletDataChange, onTopup, loading, pa
             </div>
             <p className="text-sm text-muted-foreground">Minimum top-up amount: 10 ETB</p>
           </div>
+
+          {/* Fix Balance Button - Only show if there are completed payments but balance is 0 */}
+          {paymentHistory.some(p => p.status === 'completed') && walletData.balance === 0 && (
+            <div className="pt-4 border-t">
+              <Button
+                onClick={handleFixBalance}
+                variant="outline"
+                className="w-full"
+                disabled={loading}
+              >
+                <Wrench className="w-4 h-4 mr-2" />
+                {loading ? "Fixing..." : "Fix Wallet Balance"}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Use this to sync your balance with completed payments
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 

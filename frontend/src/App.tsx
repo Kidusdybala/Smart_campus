@@ -124,12 +124,57 @@ const AppContent = () => {
             {(user) => <ProfilePage user={user} />}
           </AuthWrapper>
         } />
+        <Route path="/student/profile/vehicle" element={
+          <AuthWrapper>
+            {(user) => <ProfilePage user={user} />}
+          </AuthWrapper>
+        } />
+        <Route path="/student/profile/wallet" element={
+          <AuthWrapper>
+            {(user) => <ProfilePage user={user} />}
+          </AuthWrapper>
+        } />
+        <Route path="/student/profile/security" element={
+          <AuthWrapper>
+            {(user) => <ProfilePage user={user} />}
+          </AuthWrapper>
+        } />
         <Route path="/staff/profile" element={
           <AuthWrapper>
             {(user) => <ProfilePage user={user} />}
           </AuthWrapper>
         } />
+        <Route path="/staff/profile/vehicle" element={
+          <AuthWrapper>
+            {(user) => <ProfilePage user={user} />}
+          </AuthWrapper>
+        } />
+        <Route path="/staff/profile/wallet" element={
+          <AuthWrapper>
+            {(user) => <ProfilePage user={user} />}
+          </AuthWrapper>
+        } />
+        <Route path="/staff/profile/security" element={
+          <AuthWrapper>
+            {(user) => <ProfilePage user={user} />}
+          </AuthWrapper>
+        } />
         <Route path="/admin/profile" element={
+          <AuthWrapper>
+            {(user) => <ProfilePage user={user} />}
+          </AuthWrapper>
+        } />
+        <Route path="/admin/profile/vehicle" element={
+          <AuthWrapper>
+            {(user) => <ProfilePage user={user} />}
+          </AuthWrapper>
+        } />
+        <Route path="/admin/profile/wallet" element={
+          <AuthWrapper>
+            {(user) => <ProfilePage user={user} />}
+          </AuthWrapper>
+        } />
+        <Route path="/admin/profile/security" element={
           <AuthWrapper>
             {(user) => <ProfilePage user={user} />}
           </AuthWrapper>

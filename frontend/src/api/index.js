@@ -43,9 +43,7 @@ class ApiClient {
       if (endpoint === '/food/orders') {
         return [];
       }
-      if (endpoint === '/payment/wallet') {
-        return { balance: 0 };
-      }
+      // Removed fallback for /payment/wallet to allow proper error handling
       if (endpoint === '/schedule/attendance/stats') {
         return { present: 0, total: 0, percentage: 0 };
       }
@@ -82,7 +80,7 @@ class ApiClient {
       // Return default values for specific endpoints to prevent UI errors
       if (endpoint === '/schedule/today') return [];
       if (endpoint === '/food/orders') return [];
-      if (endpoint === '/payment/wallet') return { balance: 0 };
+      // Removed fallback for /payment/wallet to allow proper error handling
       if (endpoint === '/schedule/attendance/stats') return { present: 0, total: 0, percentage: 0 };
       if (endpoint === '/schedule/campus/status') return { status: 'normal' };
       throw error;
@@ -240,6 +238,12 @@ class ApiClient {
 
   async payForOrder(orderId) {
     return this.request(`/payment/food-order/${orderId}`, {
+      method: 'POST',
+    });
+  }
+
+  async fixWalletBalance() {
+    return this.request('/payment/fix-balance', {
       method: 'POST',
     });
   }
