@@ -321,6 +321,11 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Personalized Recommendations - Big Section */}
+            <div className="mt-8">
+              <RecommendationsComponent />
+            </div>
           </div>
 
           {/* Sidebar */}
@@ -344,9 +349,6 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Personalized Recommendations */}
-            <RecommendationsComponent />
 
             {/* Recent Food Orders */}
             <Card className="shadow-card">

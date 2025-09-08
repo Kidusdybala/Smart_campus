@@ -37,19 +37,40 @@ class ApiClient {
       '/payment/topup',
       '/payment/complete'
     ];
-    
+
+    // Always refresh token from localStorage before making requests
+    this.token = localStorage.getItem('token');
+
     // Check if token is required but missing
     const isPublicEndpoint = publicEndpoints.some(e => endpoint === e || endpoint.startsWith(`${e}/`));
-    
+
     if (this.token) {
       config.headers.Authorization = `Bearer ${this.token}`;
+      console.log(`Making authenticated request to ${endpoint}`);
     } else if (!isPublicEndpoint) {
       // For non-public endpoints, provide mock data instead of throwing errors
       console.warn(`No authentication token available for ${endpoint}`);
-      
+
       // Return mock data for development/testing when no token is available
       if (endpoint === '/auth/profile') {
         return { user: { id: "1", name: "Student", email: "student@university.edu", role: "student" } };
+      }
+      if (endpoint === '/recommendations') {
+        console.log('Returning mock recommendations due to missing token');
+        return {
+          foods: [
+            { id: '1', name: 'Shiro', price: 45, count: 3, reason: 'Your most ordered dish' },
+            { id: '2', name: 'Doro Wat', price: 65, count: 2, reason: 'Popular choice' },
+            { id: '3', name: 'Kitfo', price: 70, count: 1, reason: 'Try something new' }
+          ],
+          parking: [
+            { slot: 'A-02', count: 5, reason: 'Your preferred spot' },
+            { slot: 'A-07', count: 3, reason: 'Frequently used' }
+          ],
+          lastUpdated: new Date().toISOString(),
+          algorithm: 'mock_data_fallback',
+          service_status: 'token_missing'
+        };
       }
       if (endpoint === '/payment/wallet') {
         // Calculate balance from mock transaction history
@@ -526,48 +547,15 @@ class ApiClient {
   // Recommendations API
   async getRecommendations() {
     try {
-      // For development, use a hardcoded user ID if no token is available
-      let userId;
-      try {
-        const profile = await this.getProfile();
-        userId = profile?.id;
-      } catch (error) {
-        // Use default user ID for development
-        userId = "1";
-      }
-      
-      if (!userId) return [];
-      
-      const response = await fetch(`http://127.0.0.1:5002/recommendations/${userId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch recommendations');
-      }
-      return await response.json();
+      console.log('Fetching recommendations with token:', !!this.token);
+      // Call the backend recommendations endpoint which has fallback logic
+      const response = await this.request('/recommendations');
+      console.log('Recommendations response:', response);
+      return response;
     } catch (error) {
       console.error('Error fetching recommendations:', error);
-      // Return mock recommendations for development
-      return [
-        {
-          id: 'mock_food_1',
-          name: 'Shiro',
-          price: 45,
-          score: 5,
-          reason: 'Based on your order history'
-        },
-        {
-          id: 'mock_parking_1',
-          name: 'Parking Spot A12',
-          score: 4,
-          reason: 'Available near your next class'
-        },
-        {
-          id: 'mock_food_2',
-          name: 'Coca Cola',
-          price: 25,
-          score: 3,
-          reason: 'Popular among similar students'
-        }
-      ];
+      // Return empty array if backend is unavailable
+      return [];
     }
   }
 
