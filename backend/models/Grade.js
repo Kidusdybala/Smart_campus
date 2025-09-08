@@ -114,7 +114,7 @@ gradeSchema.pre('save', function(next) {
     const oldStatus = this.getChanges().$set?.status;
     if (oldStatus) {
       this.history.push({
-        action: 'status_changed',
+        action: 'modified',
         performedBy: this.approvedBy || this.rejectedBy || this.submittedBy,
         details: `Status changed from ${this.status} to ${this.get('status')}`,
         oldData: { status: this.status },

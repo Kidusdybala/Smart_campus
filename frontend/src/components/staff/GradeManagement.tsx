@@ -204,8 +204,36 @@ export function GradeManagement({ user }: GradeManagementProps) {
   };
 
   const createGradeSheet = async () => {
-    if (!selectedCourse || !assessmentType || !assessmentName || !totalMarks || !weightage) {
-      toast.error("Please fill in all required fields");
+    // Debug logging
+    console.log("Form validation:", {
+      selectedCourse,
+      assessmentType,
+      assessmentName,
+      totalMarks,
+      weightage,
+      totalMarksLength: totalMarks.length,
+      totalMarksType: typeof totalMarks
+    });
+
+    // More specific validation
+    if (!selectedCourse) {
+      toast.error("Please select a course");
+      return;
+    }
+    if (!assessmentType) {
+      toast.error("Please select an assessment type");
+      return;
+    }
+    if (!assessmentName || assessmentName.trim() === "") {
+      toast.error("Please enter an assessment name");
+      return;
+    }
+    if (!totalMarks || totalMarks.trim() === "") {
+      toast.error("Please enter total marks");
+      return;
+    }
+    if (!weightage || weightage.trim() === "") {
+      toast.error("Please enter weightage");
       return;
     }
 
@@ -382,7 +410,11 @@ export function GradeManagement({ user }: GradeManagementProps) {
                     type="number"
                     placeholder="100"
                     value={totalMarks}
-                    onChange={(e) => setTotalMarks(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      console.log("Total marks input:", value);
+                      setTotalMarks(value);
+                    }}
                   />
                 </div>
 
