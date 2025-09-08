@@ -4,7 +4,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "student" | "staff" | "admin";
+  role: "student" | "staff" | "admin" | "cafeteria";
 };
 
 interface ParkingPageProps {

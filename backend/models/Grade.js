@@ -55,7 +55,7 @@ const gradeSchema = new mongoose.Schema({
   history: [{
     action: {
       type: String,
-      enum: ['created', 'submitted', 'approved', 'rejected', 'published', 'modified', 'status_changed']
+      enum: ['created', 'submitted', 'approved', 'rejected', 'published', 'modified']
     },
     performedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     performedAt: { type: Date, default: Date.now },

@@ -58,6 +58,10 @@ router.post('/order', auth, async (req, res) => {
 
     await order.save();
 
+    // Clear recommendation cache for the user
+    const { clearUserCache } = require('./recommendations');
+    clearUserCache(req.user.id);
+
     // Populate the order before returning
     const populatedOrder = await Order.findById(order._id)
       .populate('user', 'name email')

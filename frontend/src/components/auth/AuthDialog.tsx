@@ -49,6 +49,10 @@ export function AuthDialog({ open, onClose, onAuthSuccess }: AuthDialogProps) {
         email: data.user.email,
         role: data.user.role,
       };
+
+      // Store user data in localStorage
+      localStorage.setItem('user', JSON.stringify(user));
+
       onAuthSuccess(user);
       toast.success(`Welcome back, ${data.user.name}!`);
       setEmail("");

@@ -18,6 +18,61 @@ interface StudentGradesPageProps {
 
 export function StudentGradesPage({ user }: StudentGradesPageProps) {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Get user from localStorage or API
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/');
+          return;
+        }
+
+        // For now, we'll assume the user is authenticated
+        // In a real app, you'd validate the token
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!userData.id) {
+          navigate('/');
+          return;
+        }
+      } catch (error) {
+        navigate('/');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
+  
+  // Prevent redirection to localhost
+  useEffect(() => {
+    // This prevents the browser from treating the URL as an external link
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const link = target.closest('a');
+      if (link && link.getAttribute('href')?.startsWith('/')) {
+        e.preventDefault();
+        navigate(link.getAttribute('href') || '/');
+      }
+    };
+    
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return null;

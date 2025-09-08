@@ -5,17 +5,6 @@ import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Progress } from "../../components/ui/progress";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "../../components/ui/alert-dialog";
-import {
   QrCode,
   UtensilsCrossed,
   Car,
@@ -30,9 +19,21 @@ import {
   Wallet,
   GraduationCap
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../components/ui/alert-dialog";
 import { api } from "../../api";
 import { toast } from "sonner";
 import { NotificationBell } from "../../components/ui/NotificationBell";
+import { RecommendationsComponent } from "../../components/student/RecommendationsComponent";
 
 type User = {
   id: string;
@@ -53,30 +54,6 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   const [campusStatus, setCampusStatus] = useState(null);
   const [walletBalance, setWalletBalance] = useState(0);
   const [loading, setLoading] = useState(true);
-
-  // Function to refresh wallet balance
-  const refreshWalletBalance = async () => {
-    if (user.role !== 'admin') {
-      try {
-        // Ensure token is refreshed before making the request
-        api.refreshToken();
-        const walletResult = await api.getWalletBalance();
-        setWalletBalance(walletResult.balance || 0);
-      } catch (err) {
-        console.error('Wallet balance refresh error:', err);
-        // If token error, try to refresh and retry once
-        if (err.message === 'No token' || err.message?.includes('token')) {
-          try {
-            api.refreshToken();
-            const walletResult = await api.getWalletBalance();
-            setWalletBalance(walletResult.balance || 0);
-          } catch (retryErr) {
-            console.error('Wallet balance refresh retry error:', retryErr);
-          }
-        }
-      }
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,20 +90,9 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         let walletResult = null;
         if (user.role !== 'admin') {
           try {
-            // Ensure token is refreshed before making the request
-            api.refreshToken();
             walletResult = await api.getWalletBalance();
           } catch (err) {
             console.error('Wallet balance error:', err);
-            // If token error, try to refresh and retry once
-            if (err.message === 'No token' || err.message?.includes('token')) {
-              try {
-                api.refreshToken();
-                walletResult = await api.getWalletBalance();
-              } catch (retryErr) {
-                console.error('Wallet balance retry error:', retryErr);
-              }
-            }
           }
         }
 
@@ -137,15 +103,15 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         if (attendanceResult.status === 'fulfilled') {
           setAttendanceData(attendanceResult.value);
         }
-
+        
         if (scheduleResult.status === 'fulfilled') {
           setTodaySchedule(scheduleResult.value);
         }
-
+        
         if (ordersResult.status === 'fulfilled') {
           setRecentOrders(ordersResult.value.slice(0, 2)); // Get recent 2 orders
         }
-
+        
         if (statusResult.status === 'fulfilled') {
           setCampusStatus(statusResult.value);
         }
@@ -163,30 +129,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
     };
 
     fetchData();
-
-    // Refresh wallet balance every 30 seconds for non-admin users
-    let walletRefreshInterval;
-    if (user.role !== 'admin') {
-      walletRefreshInterval = setInterval(refreshWalletBalance, 30000);
-    }
-
-    // Refresh wallet balance when page becomes visible again
-    const handleVisibilityChange = () => {
-      if (!document.hidden && user.role !== 'admin') {
-        refreshWalletBalance();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      if (walletRefreshInterval) {
-        clearInterval(walletRefreshInterval);
-      }
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
   }, [user.role]);
-  
 
 
   return (
@@ -220,7 +163,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    You will be redirected to the login page and will need to sign in again to access your dashboard.
+                    You will be redirected to the login page and will need to sign in again to access your account.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -230,6 +173,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                       api.clearToken();
                       navigate("/");
                     }}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     Logout
                   </AlertDialogAction>
@@ -325,7 +269,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
           {user.role !== 'admin' && (
             <Card
               className="shadow-card hover:shadow-hover transition-all duration-300 cursor-pointer group"
-              onClick={() => navigate("/student/profile")}
+              onClick={() => navigate("/student/profile/wallet")}
             >
               <CardContent className="p-6 text-center">
                 <div className="w-12 h-12 bg-green/10 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-green/20 transition-colors">
@@ -400,6 +344,9 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Personalized Recommendations */}
+            <RecommendationsComponent />
 
             {/* Recent Food Orders */}
             <Card className="shadow-card">

@@ -15,7 +15,7 @@ interface CampusSettingsPageProps {
     id: string;
     name: string;
     email: string;
-    role: "student" | "staff" | "admin";
+    role: "student" | "staff" | "admin" | "cafeteria";
   };
 }
 

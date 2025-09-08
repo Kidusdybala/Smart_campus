@@ -64,14 +64,21 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header with Login Button */}
-      <header className="absolute top-0 right-0 z-20 p-6">
-        <Button
-          onClick={() => setShowAuth(true)}
-          className="bg-white/10 backdrop-blur-lg border-white/20 text-white hover:bg-white/20"
-        >
-          <LogIn className="w-4 h-4 mr-2" />
-          Login
-        </Button>
+      <header className="absolute top-0 left-0 right-0 z-20 p-6">
+        <div className="flex items-center justify-between">
+          <img
+            src="/logo.png"
+            alt="Smart Campus Logo"
+            className="w-12 h-12 rounded-lg object-contain bg-white/20 p-1"
+          />
+          <Button
+            onClick={() => setShowAuth(true)}
+            className="bg-white/10 backdrop-blur-lg border-white/20 text-white hover:bg-white/20"
+          >
+            <LogIn className="w-4 h-4 mr-2" />
+            Login
+          </Button>
+        </div>
       </header>
 
       {/* Hero Section */}

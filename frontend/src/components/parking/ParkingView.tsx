@@ -17,7 +17,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "student" | "staff" | "admin";
+  role: "student" | "staff" | "admin" | "cafeteria";
 };
 
 interface ParkingViewProps {
@@ -217,6 +217,24 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
               userReservation={userReservation}
               onEndParking={async () => {
                 try {
+                  // First check wallet balance
+                  const walletResponse = await api.getWalletBalance();
+                  const walletBalance = walletResponse.balance;
+
+                  // Assume parking cost is 10 ETB (same as in transaction history)
+                  const parkingCost = 10;
+
+                  if (walletBalance < parkingCost) {
+                    toast.error("Insufficient wallet balance", {
+                      description: `You need ${parkingCost} ETB to end parking, but only have ${walletBalance.toFixed(2)} ETB. Please top up your wallet first.`,
+                      action: {
+                        label: "Top Up Wallet",
+                        onClick: () => window.location.href = '/student/profile/wallet'
+                      }
+                    });
+                    return;
+                  }
+
                   const response = await fetch(`${API_BASE}/parking/end/${userReservation.slot}`, {
                     method: 'POST',
                     headers: {
@@ -228,7 +246,7 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
                   const data = await response.json();
 
                   if (response.ok) {
-                    toast.success(`Parking ended. Cost: ${data.cost} ETB`);
+                    toast.success(`Parking ended. Cost: ${data.cost || parkingCost} ETB`);
                     const slots = await api.getParkingSlots();
                     setParkingSlots(slots);
                     setUserReservation(null);

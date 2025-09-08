@@ -9,7 +9,7 @@ import { toast } from "sonner";
 interface ProfileData {
   name: string;
   email: string;
-  role: "student" | "staff" | "admin";
+  role: "student" | "staff" | "admin" | "cafeteria";
   qrCode: string;
 }
 

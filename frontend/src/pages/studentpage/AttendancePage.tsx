@@ -11,7 +11,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "student" | "staff" | "admin";
+  role: "student" | "staff" | "admin" | "cafeteria";
 };
 
 interface AttendancePageProps {
@@ -52,9 +52,11 @@ export function AttendancePage({ user }: AttendancePageProps) {
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="Smart Campus Logo"
+                className="w-10 h-10 rounded-lg object-contain bg-white/20 p-1"
+              />
               <div>
                 <h1 className="text-xl font-bold text-white">Attendance Overview</h1>
                 <p className="text-white/80 text-sm">Track your academic attendance</p>

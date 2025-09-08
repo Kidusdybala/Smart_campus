@@ -34,6 +34,9 @@ app.use('/api/food', foodRoutes);
 const parkingRoutes = require('./routes/parking');
 app.use('/api/parking', parkingRoutes);
 
+const recommendationRoutes = require('./routes/recommendations');
+app.use('/api/recommendations', recommendationRoutes);
+
 const scheduleRoutes = require('./routes/schedule');
 app.use('/api/schedule', scheduleRoutes);
 

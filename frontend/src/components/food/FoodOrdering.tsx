@@ -5,7 +5,6 @@ import { FoodOrderingHeader } from "./FoodOrderingHeader";
 import { MenuDisplay } from "./MenuDisplay";
 import { OrderHistory } from "./OrderHistory";
 import { CartSummary } from "./CartSummary";
-import { Recommendations } from "./Recommendations";
 import { useNavigate } from "react-router-dom";
 
 type User = {
@@ -171,10 +170,21 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
     }
 
     const totalAmount = getCartTotal();
-    if (walletBalance < totalAmount) {
-      toast.error("Insufficient wallet balance", {
-        description: `You need ${totalAmount.toFixed(2)} ETB but only have ${walletBalance.toFixed(2)} ETB`
-      });
+
+    // Double-check wallet balance before proceeding
+    try {
+      const currentWallet = await api.getWalletBalance();
+      setWalletBalance(currentWallet.balance);
+
+      if (currentWallet.balance < totalAmount) {
+        toast.error("Insufficient wallet balance", {
+          description: `You need ${totalAmount.toFixed(2)} ETB but only have ${currentWallet.balance.toFixed(2)} ETB. Please top up your wallet first.`
+        });
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to check wallet balance:", error);
+      toast.error("Unable to verify wallet balance. Please try again.");
       return;
     }
 
@@ -194,7 +204,7 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
         description: "You'll receive a notification when it's ready for pickup"
       });
 
-      // Update wallet balance from server response and refresh orders
+      // Update wallet balance from server response
       if (paymentResponse.newBalance !== undefined) {
         setWalletBalance(paymentResponse.newBalance);
       } else {
@@ -219,7 +229,21 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
       }
     } catch (error) {
       console.error("Order placement error:", error);
-      toast.error("Failed to place order: " + (error.message || "Unknown error"));
+
+      // Handle specific error cases
+      if (error.message && error.message.includes('Insufficient wallet balance')) {
+        toast.error("Payment failed", {
+          description: "Your wallet balance is insufficient. Please top up your wallet and try again."
+        });
+      } else if (error.message && error.message.includes('Internal server error')) {
+        toast.error("Server error", {
+          description: "There was a problem processing your order. Please try again later."
+        });
+      } else {
+        toast.error("Failed to place order", {
+          description: error.message || "An unexpected error occurred. Please try again."
+        });
+      }
     }
   };
 
@@ -318,7 +342,6 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
               getCartTotal={getCartTotal}
               placeOrder={placeOrder}
             />
-            <Recommendations />
           </div>
         </div>
       </div>

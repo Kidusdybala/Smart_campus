@@ -55,6 +55,10 @@ router.post('/reserve/:slot', auth, async (req, res) => {
     };
     await slot.save();
 
+    // Clear recommendation cache for the user
+    const { clearUserCache } = require('./recommendations');
+    clearUserCache(req.user.id);
+
     res.json(slot);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -70,6 +74,10 @@ router.post('/occupy/:slot', auth, async (req, res) => {
     slot.status = 'occupied';
     slot.occupiedAt = new Date();
     await slot.save();
+
+    // Clear recommendation cache for the user
+    const { clearUserCache } = require('./recommendations');
+    clearUserCache(req.user.id);
 
     res.json(slot);
   } catch (err) {
@@ -93,6 +101,10 @@ router.post('/cancel/:slot', auth, async (req, res) => {
     slot.user = null;
     slot.reservedAt = null;
     await slot.save();
+
+    // Clear recommendation cache for the user
+    const { clearUserCache } = require('./recommendations');
+    clearUserCache(req.user.id);
 
     res.json(slot);
   } catch (err) {
@@ -140,6 +152,10 @@ router.post('/end/:slot', auth, async (req, res) => {
     slot.user = null;
     slot.endedAt = endTime;
     await slot.save();
+
+    // Clear recommendation cache for the user
+    const { clearUserCache } = require('./recommendations');
+    clearUserCache(req.user.id);
 
     // Create payment record
     const Payment = require('../models/Payment');

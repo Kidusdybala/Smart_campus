@@ -66,9 +66,11 @@ export function FoodOrderingHeader({
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                <UtensilsCrossed className="w-5 h-5 text-white" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="Smart Campus Logo"
+                className="w-10 h-10 rounded-lg object-contain bg-white/20 p-1"
+              />
               <div>
                 <h1 className="text-xl font-bold text-white">Food Ordering</h1>
                 <p className="text-white/80 text-sm">Campus Cafeteria</p>

@@ -14,7 +14,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "student" | "staff" | "admin";
+  role: "student" | "staff" | "admin" | "cafeteria";
   qrCode?: string;
 };
 
@@ -124,11 +124,11 @@ export function ProfilePage({ user }: ProfilePageProps) {
     if (path === '/profile' || path === '/student/profile' || path === '/staff/profile' || path === '/admin/profile') {
       // General profile - show tabs
       setActiveTab('profile');
-    } else if (path.includes('/profile/vehicle')) {
+    } else if (path.includes('/profile/vehicle') || path.includes('/student/profile/vehicle')) {
       setActiveTab('vehicle');
-    } else if (path.includes('/profile/wallet')) {
+    } else if (path.includes('/profile/wallet') || path.includes('/student/profile/wallet')) {
       setActiveTab('wallet');
-    } else if (path.includes('/profile/security')) {
+    } else if (path.includes('/profile/security') || path.includes('/student/profile/security')) {
       setActiveTab('security');
     } else {
       setActiveTab('profile');
@@ -228,44 +228,33 @@ export function ProfilePage({ user }: ProfilePageProps) {
       const response = await api.topupWallet(amount);
 
       if (response.checkoutUrl) {
-        // Redirect to Chapa checkout page
+        // Redirect to Chapa checkout page (test/production flow)
         toast.success("Redirecting to Chapa payment...");
         window.location.replace(response.checkoutUrl);
-      } else {
-        // Fallback for testing - complete payment immediately
+      } else if (response.paymentId) {
+        // Fallback: complete immediately (dev only)
         toast.success("Processing payment...");
         await api.completePayment(response.paymentId);
         toast.success("Wallet topped up successfully!");
-
-        // Clear the input and refresh all wallet data
         setWalletData(prev => ({ ...prev, topupAmount: '' }));
         await loadUserData();
+      } else {
+        // Handle mock response from API client when no token is available
+        toast.success("Development mode: Wallet topped up successfully!");
+        setWalletData(prev => ({ ...prev, topupAmount: '' }));
+        setWalletData(prev => ({
+          ...prev,
+          balance: prev.balance + amount
+        }));
       }
     } catch (error) {
+      console.error('Error in wallet topup:', error);
       toast.error("Failed to top up wallet");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBalanceFix = async () => {
-    try {
-      setLoading(true);
-      // First call the fix balance API
-      const fixResult = await api.fixWalletBalance();
-      console.log('Balance fix result:', fixResult);
-
-      // Then reload all user data to get the updated balance
-      await loadUserData();
-
-      toast.success(`Wallet balance updated to ${fixResult.newBalance.toFixed(2)} ETB!`);
-    } catch (error) {
-      console.error('Balance fix error:', error);
-      toast.error('Failed to fix wallet balance. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -287,9 +276,11 @@ export function ProfilePage({ user }: ProfilePageProps) {
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="Smart Campus Logo"
+                className="w-10 h-10 rounded-lg object-contain bg-white/20 p-1"
+              />
               <div>
                 <h1 className="text-xl font-bold text-white">
                   {location.pathname === '/profile' || location.pathname === '/student/profile' || location.pathname === '/staff/profile' || location.pathname === '/admin/profile'
@@ -385,7 +376,6 @@ export function ProfilePage({ user }: ProfilePageProps) {
                   onTopup={handleWalletTopup}
                   loading={loading}
                   paymentHistory={paymentHistory}
-                  onBalanceFix={handleBalanceFix}
                 />
               </TabsContent>
             )}
@@ -489,7 +479,6 @@ export function ProfilePage({ user }: ProfilePageProps) {
                 onTopup={handleWalletTopup}
                 loading={loading}
                 paymentHistory={paymentHistory}
-                onBalanceFix={handleBalanceFix}
               />
             )}
           </div>
