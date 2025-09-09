@@ -22,5 +22,3 @@ services:
         sync: false  # Will be the Render service URL
       - key: FRONTEND_URL
         sync: false  # Will be the Vercel URL
-      - key: ML_SERVICE_URL
-        sync: false  # Will be the Railway ML service URL
