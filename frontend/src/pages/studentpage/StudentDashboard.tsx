@@ -53,6 +53,21 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
   const [campusStatus, setCampusStatus] = useState(null);
   const [walletBalance, setWalletBalance] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [recommendationsRefreshTrigger, setRecommendationsRefreshTrigger] = useState(0);
+
+  // Function to refresh recommendations
+  const refreshRecommendations = () => {
+    console.log('Refreshing recommendations from dashboard');
+    setRecommendationsRefreshTrigger(prev => prev + 1);
+  };
+
+  // Expose refresh function globally for external components
+  useEffect(() => {
+    (window as typeof window & { refreshDashboardRecommendations?: () => void }).refreshDashboardRecommendations = refreshRecommendations;
+    return () => {
+      delete (window as typeof window & { refreshDashboardRecommendations?: () => void }).refreshDashboardRecommendations;
+    };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,15 +117,15 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         if (attendanceResult.status === 'fulfilled') {
           setAttendanceData(attendanceResult.value);
         }
-        
+
         if (scheduleResult.status === 'fulfilled') {
           setTodaySchedule(scheduleResult.value);
         }
-        
+
         if (ordersResult.status === 'fulfilled') {
           setRecentOrders(ordersResult.value.slice(0, 2)); // Get recent 2 orders
         }
-        
+
         if (statusResult.status === 'fulfilled') {
           setCampusStatus(statusResult.value);
         }
@@ -119,6 +134,9 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
         if (user.role !== 'admin' && walletResult) {
           setWalletBalance(walletResult.balance || 0);
         }
+
+        // Refresh recommendations after dashboard data loads
+        setTimeout(() => refreshRecommendations(), 1000);
       } catch (error) {
         toast.error("Failed to load dashboard data");
         console.error('Dashboard data error:', error);
@@ -129,6 +147,16 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
     fetchData();
   }, [user.role]);
+
+  // Periodic refresh of recommendations every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('Periodic refresh of recommendations');
+      refreshRecommendations();
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(interval);
+  }, []);
 
 
   return (
@@ -488,7 +516,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
 
             {/* Personalized Recommendations - Big Section */}
             <div className="mt-8">
-              <RecommendationsComponent />
+              <RecommendationsComponent refreshTrigger={recommendationsRefreshTrigger} />
             </div>
           </div>
 

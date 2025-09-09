@@ -40,114 +40,149 @@ interface BackendRecommendationsResponse {
   service_status?: string;
 }
 
-export function RecommendationsComponent() {
+export function RecommendationsComponent({ refreshTrigger }: { refreshTrigger?: number }) {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [dataKey, setDataKey] = useState(0); // Force re-render key
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
+  const [lastRefresh, setLastRefresh] = useState(Date.now());
+
+  // Function to fetch and process recommendations
+  const fetchRecommendations = async (forceRefresh = false) => {
+    try {
+      if (!forceRefresh) setLoading(true);
+      const data = await api.getRecommendations();
+
+      console.log('Processing recommendations data:', data, 'Force refresh:', forceRefresh);
+
+      // Handle the backend response structure
+      if (data && (data.foods || data.parking)) {
+        const combinedRecommendations: Recommendation[] = [];
+
+        // Process food recommendations - group by category and find most popular
+        if (data.foods && Array.isArray(data.foods)) {
+          console.log('Processing food recommendations:', data.foods);
+
+          // Group foods by category (soft drinks vs regular food)
+          const softDrinks: BackendFoodRecommendation[] = [];
+          const regularFoods: BackendFoodRecommendation[] = [];
+
+          data.foods.forEach((food: BackendFoodRecommendation) => {
+            const name = food.name.toLowerCase();
+            if (name.includes('cola') || name.includes('fanta') || name.includes('sprite') || name.includes('mirinda') || name.includes('malt')) {
+              softDrinks.push(food);
+            } else {
+              regularFoods.push(food);
+            }
+          });
+
+          // Find most popular soft drink
+          if (softDrinks.length > 0) {
+            const mostPopularSoftDrink = softDrinks.reduce((prev, current) =>
+              (current.count || current.score || 1) > (prev.count || prev.score || 1) ? current : prev
+            );
+            combinedRecommendations.push({
+              id: mostPopularSoftDrink.id || `softdrink_${mostPopularSoftDrink.name}`,
+              name: mostPopularSoftDrink.name,
+              price: mostPopularSoftDrink.price,
+              score: mostPopularSoftDrink.count || mostPopularSoftDrink.score || 1,
+              reason: 'Most popular soft drink in your orders',
+              type: 'food',
+              category: 'softdrink'
+            });
+          }
+
+          // Find most popular regular food
+          if (regularFoods.length > 0) {
+            const mostPopularFood = regularFoods.reduce((prev, current) =>
+              (current.count || current.score || 1) > (prev.count || prev.score || 1) ? current : prev
+            );
+            combinedRecommendations.push({
+              id: mostPopularFood.id || `food_${mostPopularFood.name}`,
+              name: mostPopularFood.name,
+              price: mostPopularFood.price,
+              score: mostPopularFood.count || mostPopularFood.score || 1,
+              reason: 'Most popular food in your orders',
+              type: 'food',
+              category: 'food'
+            });
+          }
+        }
+
+        // Process parking recommendations - find most popular parking spot
+        if (data.parking && Array.isArray(data.parking)) {
+          console.log('Processing parking recommendations:', data.parking);
+
+          if (data.parking.length > 0) {
+            const mostPopularSpot = data.parking.reduce((prev, current) =>
+              (current.count || current.score || 1) > (prev.count || prev.score || 1) ? current : prev
+            );
+
+            console.log('Most popular parking spot:', mostPopularSpot);
+
+            const parkingRec = {
+              id: mostPopularSpot.slot || `parking_${mostPopularSpot.slot}`,
+              name: mostPopularSpot.slot || mostPopularSpot.name || 'Unknown Spot',
+              price: 10, // Standard parking fee
+              score: mostPopularSpot.count || mostPopularSpot.score || 1,
+              reason: 'Your most frequently used parking spot',
+              type: 'parking'
+            };
+
+            console.log('Adding parking recommendation:', parkingRec);
+            combinedRecommendations.push(parkingRec);
+          } else {
+            console.log('No parking data available');
+          }
+        } else {
+          console.log('No parking recommendations in data');
+        }
+
+        console.log('Final filtered recommendations:', combinedRecommendations);
+        setRecommendations(combinedRecommendations);
+        setLastRefresh(Date.now());
+        setDataKey(prev => prev + 1); // Force re-render
+
+        // Force re-render by updating state
+        if (!forceRefresh) setLoading(false);
+      } else {
+        console.log('No recommendations data found');
+        setRecommendations([]);
+      }
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+      setRecommendations([]);
+    } finally {
+      if (!forceRefresh) setLoading(false);
+    }
+  };
+
+  // Manual refresh function
+  const refreshRecommendations = () => {
+    console.log('Manually refreshing recommendations...');
+    fetchRecommendations(true);
+  };
+
+  // Expose refresh function globally for external calls
+  useEffect(() => {
+    (window as typeof window & { refreshRecommendations?: () => void }).refreshRecommendations = refreshRecommendations;
+    return () => {
+      delete (window as typeof window & { refreshRecommendations?: () => void }).refreshRecommendations;
+    };
+  }, []);
 
   useEffect(() => {
-    const fetchRecommendations = async () => {
-      try {
-        setLoading(true);
-        const data = await api.getRecommendations();
-
-        console.log('Processing recommendations data:', data);
-
-        // Handle the backend response structure
-        if (data && (data.foods || data.parking)) {
-          const combinedRecommendations: Recommendation[] = [];
-
-          // Process food recommendations - group by category and find most popular
-          if (data.foods && Array.isArray(data.foods)) {
-            console.log('Processing food recommendations:', data.foods);
-
-            // Group foods by category (soft drinks vs regular food)
-            const softDrinks: BackendFoodRecommendation[] = [];
-            const regularFoods: BackendFoodRecommendation[] = [];
-
-            data.foods.forEach((food: BackendFoodRecommendation) => {
-              const name = food.name.toLowerCase();
-              if (name.includes('cola') || name.includes('fanta') || name.includes('sprite') || name.includes('mirinda') || name.includes('malt')) {
-                softDrinks.push(food);
-              } else {
-                regularFoods.push(food);
-              }
-            });
-
-            // Find most popular soft drink
-            if (softDrinks.length > 0) {
-              const mostPopularSoftDrink = softDrinks.reduce((prev, current) =>
-                (current.count || current.score || 1) > (prev.count || prev.score || 1) ? current : prev
-              );
-              combinedRecommendations.push({
-                id: mostPopularSoftDrink.id || `softdrink_${mostPopularSoftDrink.name}`,
-                name: mostPopularSoftDrink.name,
-                price: mostPopularSoftDrink.price,
-                score: mostPopularSoftDrink.count || mostPopularSoftDrink.score || 1,
-                reason: 'Most popular soft drink in your orders',
-                type: 'food',
-                category: 'softdrink'
-              });
-            }
-
-            // Find most popular regular food
-            if (regularFoods.length > 0) {
-              const mostPopularFood = regularFoods.reduce((prev, current) =>
-                (current.count || current.score || 1) > (prev.count || prev.score || 1) ? current : prev
-              );
-              combinedRecommendations.push({
-                id: mostPopularFood.id || `food_${mostPopularFood.name}`,
-                name: mostPopularFood.name,
-                price: mostPopularFood.price,
-                score: mostPopularFood.count || mostPopularFood.score || 1,
-                reason: 'Most popular food in your orders',
-                type: 'food',
-                category: 'food'
-              });
-            }
-          }
-
-          // Process parking recommendations - find most popular parking spot
-          if (data.parking && Array.isArray(data.parking)) {
-            console.log('Processing parking recommendations:', data.parking);
-
-            if (data.parking.length > 0) {
-              const mostPopularSpot = data.parking.reduce((prev, current) =>
-                (current.count || current.score || 1) > (prev.count || prev.score || 1) ? current : prev
-              );
-
-              combinedRecommendations.push({
-                id: mostPopularSpot.slot || `parking_${mostPopularSpot.slot}`,
-                name: mostPopularSpot.slot || mostPopularSpot.name || 'Unknown Spot',
-                score: mostPopularSpot.count || mostPopularSpot.score || 1,
-                reason: 'Your most frequently used parking spot',
-                type: 'parking'
-              });
-            }
-          }
-
-          console.log('Final filtered recommendations:', combinedRecommendations);
-          setRecommendations(combinedRecommendations);
-          setDataKey(prev => prev + 1); // Force re-render
-
-          // Force re-render by updating state
-          setLoading(false);
-        } else {
-          console.log('No recommendations data found');
-          setRecommendations([]);
-        }
-      } catch (error) {
-        console.error("Error fetching recommendations:", error);
-        setRecommendations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchRecommendations();
   }, []);
+
+  // Watch for external refresh triggers
+  useEffect(() => {
+    if (refreshTrigger && refreshTrigger > lastRefresh) {
+      console.log('External refresh trigger detected, refreshing recommendations...');
+      fetchRecommendations(true);
+    }
+  }, [refreshTrigger, lastRefresh]);
 
   // Mobile interactivity handlers
   const toggleFavorite = (recId: string) => {
@@ -183,11 +218,16 @@ export function RecommendationsComponent() {
   };
 
   const handleCardClick = (rec: Recommendation) => {
+    console.log('Card clicked:', rec);
     // Navigate to appropriate page based on recommendation type
-    if (rec.type === 'food') {
+    if (rec.type === 'food' || rec.category === 'softdrink' || rec.category === 'food') {
+      console.log('Navigating to food page');
       window.location.href = '/student/food';
     } else if (rec.type === 'parking') {
+      console.log('Navigating to parking page');
       window.location.href = '/student/parking';
+    } else {
+      console.log('Unknown recommendation type:', rec.type, rec.category);
     }
   };
 
@@ -286,12 +326,14 @@ export function RecommendationsComponent() {
   return (
     <div key={dataKey} className="w-full">
       <div className="mb-4 md:mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2 flex items-center gap-2 md:gap-3">
-          <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-            <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-white" />
-          </div>
-          For You
-        </h2>
+        <div className="mb-2">
+          <h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2 md:gap-3">
+            <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-white" />
+            </div>
+            For You
+          </h2>
+        </div>
         <p className="text-sm md:text-base text-muted-foreground">Personalized recommendations based on your activity</p>
         {/* Mobile interaction hint */}
         <div className="md:hidden mt-2 flex items-center gap-2 text-xs text-muted-foreground">
@@ -332,7 +374,10 @@ export function RecommendationsComponent() {
             <div
               key={rec.id}
               className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.01] md:hover:scale-[1.02] cursor-pointer group active:scale-95 touch-manipulation"
-              onClick={() => handleCardClick(rec)}
+              onClick={() => {
+                console.log('Recommendation card clicked:', rec);
+                handleCardClick(rec);
+              }}
             >
               {/* Image Section */}
               <div className="aspect-square relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
@@ -406,17 +451,26 @@ export function RecommendationsComponent() {
                   <h3 className="font-semibold text-base md:text-lg text-gray-900 leading-tight line-clamp-2">
                     {rec.name}
                   </h3>
-                  {rec.price && (
+                  {rec.price ? (
                     <div className="bg-green-100 text-green-800 px-2 py-1 rounded-lg text-xs md:text-sm font-medium flex-shrink-0 ml-2">
                       {rec.price} ETB
                     </div>
+                  ) : (
+                    rec.type === 'parking' && (
+                      <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-lg text-xs md:text-sm font-medium flex-shrink-0 ml-2">
+                        Free
+                      </div>
+                    )
                   )}
                 </div>
 
                 <p className="text-gray-600 text-xs md:text-sm mb-3 leading-relaxed line-clamp-2">
                   {rec.category === 'softdrink' ? 'Your most ordered beverage choice' :
                    rec.category === 'food' ? 'Your favorite meal from our menu' :
-                   rec.type === 'parking' ? 'Based on your parking preferences' :
+                   rec.type === 'parking' ? (() => {
+                     console.log('Parking spot description:', rec.reason);
+                     return 'Based on your parking preferences';
+                   })() :
                    rec.reason}
                 </p>
 

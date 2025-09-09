@@ -129,6 +129,13 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
         (slot.status === 'reserved' || slot.status === 'occupied')
       );
       setUserReservation(newUserReservation || null);
+
+      // Refresh dashboard recommendations after parking reservation
+      setTimeout(() => {
+        if ((window as typeof window & { refreshDashboardRecommendations?: () => void }).refreshDashboardRecommendations) {
+          (window as typeof window & { refreshDashboardRecommendations?: () => void }).refreshDashboardRecommendations();
+        }
+      }, 1000);
     } catch (error) {
       if (error.message && error.message.includes('already have an active parking reservation')) {
         toast.error("Active reservation exists", {
@@ -250,6 +257,13 @@ export function ParkingView({ onBack, user }: ParkingViewProps) {
                     const slots = await api.getParkingSlots();
                     setParkingSlots(slots);
                     setUserReservation(null);
+
+                    // Refresh dashboard recommendations after parking action
+                    setTimeout(() => {
+                      if ((window as typeof window & { refreshDashboardRecommendations?: () => void }).refreshDashboardRecommendations) {
+                        (window as typeof window & { refreshDashboardRecommendations?: () => void }).refreshDashboardRecommendations();
+                      }
+                    }, 1000);
                   } else {
                     toast.error(data.error || "Failed to end parking");
                   }

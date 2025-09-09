@@ -484,15 +484,7 @@ class ApiClient {
   }
 
   async getInstructorGrades() {
-    // Temporarily remove token for development
-    const originalToken = this.token;
-    this.token = null;
-
-    try {
-      return await this.request('/grades/instructor/grades');
-    } finally {
-      this.token = originalToken;
-    }
+    return await this.request('/grades/instructor/grades');
   }
 
   async getPendingGrades() {
@@ -533,15 +525,7 @@ class ApiClient {
 
   // Notifications
   async getNotifications(page = 1, limit = 20, unreadOnly = false) {
-    // Temporarily remove token for development
-    const originalToken = this.token;
-    this.token = null;
-
-    try {
-      return await this.request(`/notifications?page=${page}&limit=${limit}&unreadOnly=${unreadOnly}`);
-    } finally {
-      this.token = originalToken;
-    }
+    return await this.request(`/notifications?page=${page}&limit=${limit}&unreadOnly=${unreadOnly}`);
   }
 
   // Recommendations API
@@ -560,43 +544,19 @@ class ApiClient {
   }
 
   async markNotificationAsRead(notificationId) {
-    // Temporarily remove token for development
-    const originalToken = this.token;
-    this.token = null;
-
-    try {
-      return await this.request(`/notifications/${notificationId}/read`, {
-        method: 'POST',
-      });
-    } finally {
-      this.token = originalToken;
-    }
+    return await this.request(`/notifications/${notificationId}/read`, {
+      method: 'POST',
+    });
   }
 
   async markAllNotificationsAsRead() {
-    // Temporarily remove token for development
-    const originalToken = this.token;
-    this.token = null;
-
-    try {
-      return await this.request('/notifications/mark-all-read', {
-        method: 'POST',
-      });
-    } finally {
-      this.token = originalToken;
-    }
+    return await this.request('/notifications/mark-all-read', {
+      method: 'POST',
+    });
   }
 
   async getUnreadNotificationCount() {
-    // Temporarily remove token for development
-    const originalToken = this.token;
-    this.token = null;
-
-    try {
-      return await this.request('/notifications/unread-count');
-    } finally {
-      this.token = originalToken;
-    }
+    return await this.request('/notifications/unread-count');
   }
 }
 
