@@ -16,7 +16,6 @@ import {
   CheckCircle,
   AlertCircle,
   TrendingUp,
-  Wallet,
   GraduationCap
 } from "lucide-react";
 import {
@@ -191,12 +190,12 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             className="shadow-card hover:shadow-hover transition-all duration-300 cursor-pointer group"
             onClick={() => navigate("/student/qr")}
           >
-            <CardContent className="p-6 text-center">
+            <CardContent className="p-6 text-center group-hover:bg-primary/5 transition-colors">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
                 <QrCode className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-semibold mb-1">QR Scanner</h3>
-              <p className="text-sm text-muted-foreground">Check into campus & classes</p>
+              <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">QR Scanner</h3>
+              <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">Check into campus & classes</p>
             </CardContent>
           </Card>
 
@@ -204,12 +203,12 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             className="shadow-card hover:shadow-hover transition-all duration-300 cursor-pointer group"
             onClick={() => navigate("/student/food")}
           >
-            <CardContent className="p-6 text-center">
+            <CardContent className="p-6 text-center group-hover:bg-accent/5 transition-colors">
               <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-accent/20 transition-colors">
                 <UtensilsCrossed className="w-6 h-6 text-accent" />
               </div>
-              <h3 className="font-semibold mb-1">Food Ordering</h3>
-              <p className="text-sm text-muted-foreground">Order meals & track pickup</p>
+              <h3 className="font-semibold mb-1 group-hover:text-accent transition-colors">Food Ordering</h3>
+              <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">Order meals & track pickup</p>
             </CardContent>
           </Card>
 
@@ -217,12 +216,12 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             className="shadow-card hover:shadow-hover transition-all duration-300 cursor-pointer group"
             onClick={() => navigate("/student/parking")}
           >
-            <CardContent className="p-6 text-center">
+            <CardContent className="p-6 text-center group-hover:bg-warning/5 transition-colors">
               <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-warning/20 transition-colors">
                 <Car className="w-6 h-6 text-warning" />
               </div>
-              <h3 className="font-semibold mb-1">Parking</h3>
-              <p className="text-sm text-muted-foreground">Find & reserve parking spots</p>
+              <h3 className="font-semibold mb-1 group-hover:text-warning transition-colors">Parking</h3>
+              <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">Find & reserve parking spots</p>
             </CardContent>
           </Card>
 
@@ -230,12 +229,12 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             className="shadow-card hover:shadow-hover transition-all duration-300 cursor-pointer group"
             onClick={() => navigate("/student/attendance")}
           >
-            <CardContent className="p-6 text-center">
+            <CardContent className="p-6 text-center group-hover:bg-success/5 transition-colors">
               <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-success/20 transition-colors">
                 <TrendingUp className="w-6 h-6 text-success" />
               </div>
-              <h3 className="font-semibold mb-1">Attendance</h3>
-              <p className="text-sm text-muted-foreground">{attendanceData.percentage}% this semester</p>
+              <h3 className="font-semibold mb-1 group-hover:text-success transition-colors">Attendance</h3>
+              <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">{attendanceData.percentage}% this semester</p>
             </CardContent>
           </Card>
 
@@ -243,12 +242,12 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             className="shadow-card hover:shadow-hover transition-all duration-300 cursor-pointer group"
             onClick={() => navigate("/student/grades")}
           >
-            <CardContent className="p-6 text-center">
+            <CardContent className="p-6 text-center group-hover:bg-blue/5 transition-colors">
               <div className="w-12 h-12 bg-blue/10 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-blue/20 transition-colors">
                 <GraduationCap className="w-6 h-6 text-blue-600" />
               </div>
-              <h3 className="font-semibold mb-1">Grades</h3>
-              <p className="text-sm text-muted-foreground">View your academic results</p>
+              <h3 className="font-semibold mb-1 group-hover:text-blue-600 transition-colors">Grades</h3>
+              <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">View your academic results</p>
             </CardContent>
           </Card>
 
@@ -256,30 +255,15 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             className="shadow-card hover:shadow-hover transition-all duration-300 cursor-pointer group"
             onClick={() => navigate("/student/profile")}
           >
-            <CardContent className="p-6 text-center">
+            <CardContent className="p-6 text-center group-hover:bg-purple/5 transition-colors">
               <div className="w-12 h-12 bg-purple/10 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-purple/20 transition-colors">
                 <User className="w-6 h-6 text-purple" />
               </div>
-              <h3 className="font-semibold mb-1">Profile</h3>
-              <p className="text-sm text-muted-foreground">Manage your account</p>
+              <h3 className="font-semibold mb-1 group-hover:text-purple transition-colors">Profile</h3>
+              <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">Manage your account</p>
             </CardContent>
           </Card>
 
-          {/* Only show wallet for students and staff */}
-          {user.role !== 'admin' && (
-            <Card
-              className="shadow-card hover:shadow-hover transition-all duration-300 cursor-pointer group"
-              onClick={() => navigate("/student/profile/wallet")}
-            >
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-green/10 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-green/20 transition-colors">
-                  <Wallet className="w-6 h-6 text-green-600" />
-                </div>
-                <h3 className="font-semibold mb-1">Wallet</h3>
-                <p className="text-sm text-muted-foreground">{walletBalance.toFixed(2)} ETB</p>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">

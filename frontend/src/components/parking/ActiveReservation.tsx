@@ -46,7 +46,7 @@ export function ActiveReservation({ userReservation, onEndParking }: ActiveReser
                 <div className="text-sm text-green-600">Main Campus Parking</div>
               </div>
             </div>
-            <Badge className="bg-green-500 hover:bg-green-600 capitalize">
+            <Badge className="bg-green-500 hover:bg-green-600 text-white hover:text-white capitalize">
               {userReservation.status}
             </Badge>
           </div>
@@ -80,7 +80,7 @@ export function ActiveReservation({ userReservation, onEndParking }: ActiveReser
             <Button
               size="sm"
               variant="outline"
-              className="border-red-300 text-red-700 hover:bg-red-50"
+              className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800"
               onClick={onEndParking}
             >
               End Parking
