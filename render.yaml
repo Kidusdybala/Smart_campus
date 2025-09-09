@@ -22,14 +22,5 @@ services:
         sync: false  # Will be the Render service URL
       - key: FRONTEND_URL
         sync: false  # Will be the Vercel URL
-  - type: web
-    name: smart-campus-ml-service
-    runtime: python-3.10.12
-    buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
-    rootDir: ml_service
-    envVars:
-      - key: MONGO_URI
-        sync: false  # Set in Render dashboard
-      - key: ML_SERVICE_PORT
-        value: 10000
+      - key: ML_SERVICE_URL
+        sync: false  # Will be the Railway ML service URL
