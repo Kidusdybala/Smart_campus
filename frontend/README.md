@@ -4,7 +4,7 @@
 
 ![Smart Campus Logo](public/logo.png)
 
-**A comprehensive digital ecosystem for modern educational institutions**
+**A comprehensive web-based platform designed to streamline campus operations and enhance the student experience through integrated digital services including attendance tracking, food ordering, parking management, academic scheduling, and AI-powered recommendations.**
 
 [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://www.typescriptlang.org/)
@@ -19,101 +19,80 @@
 
 ---
 
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [🚀 Key Features](#-key-features)
+- [🤖 Machine Learning Integration](#-machine-learning-integration)
+- [🛠️ Technology Stack](#️-technology-stack)
+- [🏗️ Architecture](#️-architecture)
+- [📸 Screenshots](#-screenshots)
+- [⚡ Prerequisites](#-prerequisites)
+- [🚀 Installation](#-installation)
+- [⚙️ Configuration](#️-configuration)
+- [🗄️ Database Setup](#️-database-setup)
+- [🏃‍♂️ Running the Application](#️-running-the-application)
+- [🔌 API Documentation](#-api-documentation)
+- [👥 User Roles](#-user-roles)
+- [💻 Development](#-development)
+- [🧪 Testing](#-testing)
+- [🚀 Deployment](#-deployment)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [🆘 Support](#-support)
+
+---
+
 ## 🌟 Overview
 
-The Smart Campus Management System is a cutting-edge web application designed to streamline campus operations and enhance the student experience. Built with modern technologies, it provides a unified platform for attendance tracking, food ordering, parking management, grade management, and intelligent recommendations powered by machine learning.
+The **Smart Campus Management System** is a cutting-edge full-stack web application that provides a unified platform for managing campus activities with integrated AI-powered recommendations. The system supports multiple user roles (students, staff, administrators, and cafeteria staff) and offers a seamless experience across different devices.
 
 ### 🎯 Key Highlights
 
-- **Multi-Role Architecture**: Separate dashboards for Students, Staff, Administrators, and Cafeteria staff
-- **AI-Powered Recommendations**: Personalized food and parking suggestions using collaborative filtering
-- **Real-Time Updates**: Live notifications and status updates across all modules
-- **Mobile-First Design**: Responsive interface optimized for all devices
-- **Secure Authentication**: JWT-based authentication with role-based access control
-- **Comprehensive Analytics**: Detailed insights and reporting for administrators
+- **🤖 AI-Powered Intelligence**: Advanced ML algorithms for personalized recommendations
+- **📱 Multi-Role Architecture**: Separate dashboards for Students, Staff, Admins, and Cafeteria
+- **⚡ Real-Time Updates**: Live notifications and status updates across all modules
+- **🔐 Secure Authentication**: JWT-based auth with role-based access control
+- **💳 Integrated Payments**: Chapa payment gateway with digital wallet system
+- **📊 Comprehensive Analytics**: Real-time dashboards and detailed reporting
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
 ### 👨‍🎓 Student Portal
-- **QR Code Attendance**: Instant check-in/check-out with mobile QR scanner
-- **Smart Food Ordering**: Order meals with real-time status tracking and pickup notifications
-- **Intelligent Parking**: Reserve parking spots with AI-powered recommendations
-- **Academic Dashboard**: View grades, attendance records, and class schedules
-- **Personalized Recommendations**: ML-driven suggestions for food and parking based on behavior patterns
-- **Digital Wallet**: Integrated payment system with Chapa payment gateway
-- **Profile Management**: Update personal information and vehicle details
+- **📱 QR Code Attendance**: Instant check-in/check-out with mobile QR scanner
+- **🍽️ Smart Food Ordering**: AI-powered menu recommendations with real-time tracking
+- **🚗 Intelligent Parking**: ML-driven parking spot suggestions and reservations
+- **📚 Academic Dashboard**: View grades, attendance records, and class schedules
+- **🤖 Personalized Recommendations**: ML-generated suggestions for food and parking
+- **💰 Digital Wallet**: Integrated payment system with Chapa gateway
+- **👤 Profile Management**: Update personal information and vehicle details
 
 ### 👨‍🏫 Staff Portal
-- **Class Management**: Create assignments, send announcements, and schedule office hours
-- **Grade Management**: Input and manage student grades with approval workflows
-- **Attendance Oversight**: Monitor student attendance and generate reports
-- **Communication Tools**: Send announcements and notifications to students
-- **Schedule Management**: View and manage class schedules
+- **📋 Class Management**: Create assignments, send announcements, schedule office hours
+- **📝 Grade Management**: Input and manage student grades with approval workflows
+- **👥 Attendance Oversight**: Monitor student attendance and generate reports
+- **📢 Communication Tools**: Send announcements and notifications to students
+- **📅 Schedule Management**: View and manage class schedules
 
 ### 👨‍💼 Admin Portal
-- **User Management**: Comprehensive user administration and role assignment
-- **System Analytics**: Real-time dashboards with key performance indicators
-- **Campus Settings**: Configure system parameters and campus information
-- **System Health Monitoring**: Track system performance and uptime
-- **Grade Approval**: Review and approve staff-entered grades
-- **Parking Management**: Oversee parking reservations and clear reservations when needed
+- **👥 User Management**: Comprehensive user administration and role assignment
+- **📊 System Analytics**: Real-time dashboards with key performance indicators
+- **⚙️ Campus Settings**: Configure system parameters and campus information
+- **🔍 System Health Monitoring**: Track system performance and uptime
+- **✅ Grade Approval**: Review and approve staff-entered grades
+- **🚗 Parking Management**: Oversee parking reservations and clear reservations
 
 ### 🍽️ Cafeteria Portal
-- **Order Management**: Process and track food orders in real-time
-- **Menu Management**: Update food items, prices, and availability
-- **Inventory Tracking**: Monitor stock levels and generate reports
-- **Customer Service**: Handle order modifications and customer inquiries
-
-### 🤖 Machine Learning Integration
-- **Collaborative Filtering**: Recommends food items based on similar users' preferences
-- **Personal History Analysis**: Suggests items based on individual ordering patterns
-- **Time-Weighted Recommendations**: Considers recency of orders for better suggestions
-- **Parking Pattern Recognition**: Learns preferred parking spots and suggests optimal locations
-- **Adaptive Algorithms**: Continuously improves recommendations based on user feedback
+- **📋 Order Management**: Process and track food orders in real-time
+- **🍽️ Menu Management**: Update food items, prices, and availability
+- **📦 Inventory Tracking**: Monitor stock levels and generate reports
+- **💬 Customer Service**: Handle order modifications and customer inquiries
 
 ---
 
-## 🛠️ Tech Stack
-
-### Frontend
-- **React 18** - Modern UI library with hooks and concurrent features
-- **TypeScript** - Type-safe JavaScript for better developer experience
-- **Vite** - Fast build tool and development server
-- **shadcn/ui** - Beautiful and accessible UI components
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router** - Client-side routing
-- **React Query** - Powerful data synchronization for React
-- **Recharts** - Composable charting library
-
-### Backend
-- **Node.js** - JavaScript runtime for server-side development
-- **Express.js** - Fast, unopinionated web framework
-- **MongoDB** - NoSQL database for flexible data storage
-- **Mongoose** - Elegant MongoDB object modeling
-- **JWT** - JSON Web Tokens for secure authentication
-- **bcryptjs** - Password hashing for security
-- **Socket.io** - Real-time bidirectional communication
-
-### Machine Learning Service
-- **Python 3.8+** - Programming language for ML implementations
-- **Flask** - Lightweight WSGI web application framework
-- **scikit-learn** - Machine learning library for Python
-- **pandas** - Data manipulation and analysis
-- **NumPy** - Fundamental package for array computing
-- **SciPy** - Scientific computing library
-- **joblib** - Lightweight pipelining in Python
-
-### DevOps & Tools
-- **ESLint** - JavaScript/TypeScript linting
-- **Prettier** - Code formatting
-- **Docker** - Containerization platform
-- **Git** - Version control system
-
----
-
-## 🤖 Advanced Machine Learning Integration
+## 🤖 Machine Learning Integration
 
 <div align="center">
 
@@ -270,13 +249,106 @@ POST /train                     # Retrain ML models
 
 ---
 
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 18** - Modern JavaScript library for building user interfaces
+- **TypeScript** - Type-safe JavaScript for better development experience
+- **Vite** - Fast build tool and development server
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - Modern UI component library
+- **React Router** - Client-side routing
+- **Sonner** - Toast notifications
+- **Lucide React** - Icon library
+
+### Backend
+- **Node.js** - JavaScript runtime environment
+- **Express.js** - Web application framework
+- **MongoDB** - NoSQL database
+- **Mongoose** - MongoDB object modeling
+- **JWT** - JSON Web Token for authentication
+- **bcryptjs** - Password hashing
+- **Socket.IO** - Real-time communication
+
+### Machine Learning Service
+- **Python 3.8+** - Programming language for ML implementations
+- **Flask** - Lightweight WSGI web application framework
+- **scikit-learn** - Machine learning library for Python
+- **pandas** - Data manipulation and analysis
+- **NumPy** - Fundamental package for array computing
+- **SciPy** - Scientific computing library
+- **joblib** - Lightweight pipelining in Python
+
+### External Services
+- **Chapa Payment Gateway** - Payment processing
+- **MongoDB Atlas** - Cloud database hosting
+
+---
+
+## 🏗️ Architecture
+
+The application follows a modern full-stack architecture with clear separation of concerns:
+
+```
+smart-campus/
+├── frontend/          # React TypeScript application
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── pages/         # Page components
+│   │   ├── api/           # API client and utilities
+│   │   └── lib/           # Utility functions
+│   ├── public/            # Static assets
+│   └── package.json
+├── backend/           # Node.js Express server
+│   ├── models/            # MongoDB schemas
+│   ├── routes/            # API route handlers
+│   ├── middleware/        # Authentication and validation
+│   ├── utils/             # Helper functions
+│   └── package.json
+├── ml_service/        # Python ML service (REQUIRED)
+│   ├── app.py             # Flask application
+│   ├── requirements.txt   # Python dependencies
+│   └── check_connection.py # Database connection checker
+└── README.md
+```
+
+### API Architecture
+
+The backend follows RESTful API design principles with the following structure:
+
+- **Authentication Routes** (`/api/auth`)
+  - POST `/login` - User login
+  - POST `/register` - User registration
+  - GET `/profile` - Get user profile
+
+- **Food Management** (`/api/food`)
+  - GET `/menu` - Get food menu
+  - POST `/order` - Place food order
+  - GET `/orders` - Get user orders
+
+- **Parking Management** (`/api/parking`)
+  - GET `/` - Get parking slots
+  - POST `/reserve/:slot` - Reserve parking spot
+
+- **Payment Processing** (`/api/payment`)
+  - GET `/wallet` - Get wallet balance
+  - POST `/topup` - Top up wallet
+  - POST `/food-order/:orderId` - Pay for food order
+
+- **ML Service Integration** (`/api/ml`)
+  - GET `/recommendations/:userId` - Get personalized recommendations
+  - POST `/train` - Retrain ML models
+  - GET `/health` - Check ML service status
+
+---
+
 ## 📸 Screenshots
 
 ### Main Application Views
 
 #### Student Dashboard
 ![Student Main Page](public/readme/student%20main%20page.png)
-*The central hub for students with quick actions and personalized recommendations*
+*The central hub for students with quick actions and AI-powered personalized recommendations*
 
 #### Admin Dashboard
 ![Admin Main Page](public/readme/Admin%20main%20page.png)
@@ -298,7 +370,7 @@ POST /train                     # Retrain ML models
 
 #### Parking Management
 ![Student Parking Page](public/readme/student%20parking%20page.png)
-*Interactive parking map with reservation system*
+*Interactive parking map with AI-powered spot recommendations*
 
 #### Grade Management
 ![Student Grade Page](public/readme/student%20grade%20page.png)
@@ -338,72 +410,98 @@ POST /train                     # Retrain ML models
 
 ---
 
-## 🚀 Quick Start
+## ⚡ Prerequisites
 
-### Prerequisites
+Before running the application, ensure you have the following installed:
 
-- **Node.js** (version 18 or higher)
-- **Python** (version 3.8 or higher)
-- **MongoDB** (local or cloud instance)
-- **npm** or **yarn** package manager
+- **Node.js** (version 18.0.0 or higher)
+- **Python** (version 3.8.0 or higher) - **REQUIRED for ML service**
+- **npm** (comes with Node.js) or **yarn**
+- **MongoDB** (local installation or MongoDB Atlas account)
+- **Git** (for version control)
 
-### Installation
+---
 
-1. **Clone the repository**
-   ```bash
-   git clone <YOUR_GIT_URL>
-   cd smart-campus
-   ```
+## 🚀 Installation
 
-2. **Backend Setup**
-   ```bash
-   cd backend
-   npm install
-   cp .env.example .env  # Configure your environment variables
-   npm run dev
-   ```
+### 1. Clone the Repository
 
-3. **Frontend Setup**
-   ```bash
-   cd ../frontend
-   npm install
-   cp .env.example .env  # Configure your environment variables
-   npm run dev
-   ```
+```bash
+git clone <repository-url>
+cd smart-campus
+```
 
-4. **ML Service Setup**
-   ```bash
-   cd ../ml_service
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   python app.py
-   ```
+### 2. Backend Setup
 
-5. **Access the Application**
-   - Frontend: `http://localhost:5173`
-   - Backend API: `http://localhost:5000`
-   - ML Service: `http://localhost:5002`
+```bash
+cd backend
+npm install
+```
 
-### Environment Configuration
+### 3. Frontend Setup
 
-Create `.env` files in each service directory:
+```bash
+cd ../frontend
+npm install
+```
 
-**Backend (.env)**
+### 4. ML Service Setup (REQUIRED)
+
+```bash
+cd ../ml_service
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 5. Environment Configuration
+
+Create environment files for backend, frontend, and ML service (see Configuration section below).
+
+---
+
+## ⚙️ Configuration
+
+### Backend Environment Variables
+
+Create a `.env` file in the `backend` directory:
+
 ```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/smartcampus
-JWT_SECRET=your_jwt_secret_key
+# Database Configuration
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/smartcampus
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-here
+
+# Server Configuration
+PORT=5001
+
+# Payment Gateway Configuration
+CHAPA_SECRET_KEY=your-chapa-secret-key
+CHAPA_PUBLIC_KEY=your-chapa-public-key
+CHAPA_BASE_URL=https://api.chapa.co/v1
+
+# Frontend Configuration
+FRONTEND_URL=http://localhost:5173
+BASE_URL=http://localhost:5001
+
+# ML Service Configuration (REQUIRED)
 ML_SERVICE_URL=http://localhost:5002
 ```
 
-**Frontend (.env)**
+### Frontend Environment Variables
+
+Create a `.env` file in the `frontend` directory:
+
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_BASE=http://localhost:5001/api
 VITE_ML_SERVICE_URL=http://localhost:5002
 ```
 
-**ML Service (.env)**
+### ML Service Environment Variables
+
+Create a `.env` file in the `ml_service` directory:
+
 ```env
 MONGO_URI=mongodb://localhost:27017/smartcampus
 ML_SERVICE_PORT=5002
@@ -411,97 +509,471 @@ ML_SERVICE_PORT=5002
 
 ---
 
-## 📖 Usage Guide
+## 🗄️ Database Setup
 
-### For Students
+### Using MongoDB Atlas (Recommended)
 
-1. **Login** with your student credentials
-2. **QR Attendance**: Use the QR scanner to check into classes
-3. **Food Ordering**: Browse menu, place orders, and track pickup status
-4. **Parking**: Reserve spots using the interactive map
-5. **View Grades**: Access your academic records and attendance
-6. **Profile**: Update personal information and vehicle details
+1. Create a MongoDB Atlas account
+2. Create a new cluster
+3. Get your connection string
+4. Update the `MONGO_URI` in your backend `.env` file
 
-### For Staff
+### Using Local MongoDB
 
-1. **Dashboard**: View class schedules and student information
-2. **Assignments**: Create and distribute assignments
-3. **Grades**: Input student grades for approval
-4. **Attendance**: Monitor class attendance
-5. **Communication**: Send announcements to students
+1. Install MongoDB locally
+2. Start MongoDB service
+3. Update `MONGO_URI` to `mongodb://localhost:27017/smartcampus`
 
-### For Administrators
+### Database Seeding
 
-1. **System Overview**: Monitor key metrics and system health
-2. **User Management**: Add, edit, and manage user accounts
-3. **Analytics**: View detailed reports and insights
-4. **Settings**: Configure system parameters
+The application includes a seed script to populate the database with sample data:
+
+```bash
+cd backend
+node seed.js
+```
+
+This will create:
+- Sample users (student, staff, admin, cafeteria)
+- Food menu items
+- Parking slots
+- Sample schedules
+- Historical order data for ML training
+
+---
+
+## 🏃‍♂️ Running the Application
+
+### Development Mode
+
+1. **Start the ML Service (REQUIRED):**
+   ```bash
+   cd ml_service
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   python app.py
+   ```
+   The ML service will start on `http://localhost:5002`
+
+2. **Start the Backend Server:**
+   ```bash
+   cd backend
+   npm run dev
+   ```
+   The server will start on `http://localhost:5001`
+
+3. **Start the Frontend Application:**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+   The application will be available at `http://localhost:5173`
+
+### Production Mode
+
+1. **Build the Frontend:**
+   ```bash
+   cd frontend
+   npm run build
+   ```
+
+2. **Start the ML Service:**
+   ```bash
+   cd ml_service
+   source venv/bin/activate
+   python app.py &
+   ```
+
+3. **Start the Backend:**
+   ```bash
+   cd backend
+   npm start
+   ```
 
 ---
 
 ## 🔌 API Documentation
 
 ### Authentication Endpoints
-```http
-POST /api/auth/login
-POST /api/auth/register
-POST /api/auth/logout
-GET  /api/auth/profile
+
+#### POST /api/auth/login
+Authenticate user and return JWT token.
+
+**Request Body:**
+```json
+{
+  "email": "student@university.edu",
+  "password": "password123"
+}
 ```
 
-### Student Endpoints
-```http
-GET  /api/student/dashboard
-GET  /api/student/attendance
-POST /api/student/qr-scan
-GET  /api/student/food-menu
-POST /api/student/order
-GET  /api/student/parking
-POST /api/student/parking/reserve
+**Response:**
+```json
+{
+  "token": "jwt-token-here",
+  "user": {
+    "id": "user-id",
+    "name": "User Name",
+    "email": "user@university.edu",
+    "role": "student"
+  }
+}
 ```
+
+#### POST /api/auth/register
+Register a new user account.
+
+### Food Management Endpoints
+
+#### GET /api/food/menu
+Get the current food menu with ML-powered recommendations.
+
+#### POST /api/food/order
+Place a new food order.
+
+**Request Body:**
+```json
+{
+  "items": [
+    {
+      "food": "food-id",
+      "quantity": 2
+    }
+  ]
+}
+```
+
+#### GET /api/food/orders
+Get user's order history.
+
+### Parking Management Endpoints
+
+#### GET /api/parking
+Get parking slots with ML recommendations.
+
+#### POST /api/parking/reserve/:slot
+Reserve parking spot.
 
 ### ML Service Endpoints
-```http
-GET  /health
-GET  /recommendations/:user_id
-POST /train
+
+#### GET /api/ml/recommendations/:userId
+Get personalized recommendations for food and parking.
+
+**Response:**
+```json
+{
+  "foods": [
+    {
+      "id": "food_123",
+      "name": "Doro Wat",
+      "price": 250,
+      "score": 4.2,
+      "reason": "Popular among similar students"
+    }
+  ],
+  "parking": [
+    {
+      "slot": "A-02",
+      "score": 5,
+      "reason": "Your preferred spot"
+    }
+  ],
+  "lastUpdated": "2025-01-09T12:00:00Z",
+  "algorithm": "python_ml_adaptive_hybrid"
+}
 ```
 
-### Admin Endpoints
-```http
-GET  /api/admin/dashboard
-GET  /api/admin/users
-POST /api/admin/users
-PUT  /api/admin/users/:id
-DELETE /api/admin/users/:id
-GET  /api/admin/analytics
+#### POST /api/ml/train
+Retrain ML models with latest data.
+
+#### GET /api/ml/health
+Check ML service status.
+
+### Payment Endpoints
+
+#### GET /api/payment/wallet
+Get user's wallet balance.
+
+#### POST /api/payment/topup
+Initialize wallet top-up.
+
+#### POST /api/payment/food-order/:orderId
+Pay for a food order.
+
+---
+
+## 👥 User Roles
+
+### Student
+- Access to personal dashboard with ML recommendations
+- QR code attendance tracking
+- AI-powered food ordering and payment
+- ML-driven parking reservation
+- View grades and schedule
+- Wallet management with Chapa integration
+
+### Staff
+- All student features
+- Grade management with approval workflows
+- Class scheduling and announcements
+- Student attendance monitoring
+- Access to ML analytics for their classes
+
+### Administrator
+- Full system access and user management
+- System configuration and ML model management
+- Analytics dashboard with ML performance metrics
+- Campus settings and system health monitoring
+- Grade approval and parking management
+
+### Cafeteria Staff
+- Food menu management with ML insights
+- Real-time order processing and status updates
+- Inventory management with ML demand predictions
+- Customer service and order modifications
+
+---
+
+## 💻 Development
+
+### Code Structure
+
+```
+frontend/src/
+├── components/          # Reusable UI components
+│   ├── ui/             # Base UI components (buttons, inputs, etc.)
+│   ├── auth/           # Authentication components
+│   ├── food/           # Food ordering with ML recommendations
+│   ├── parking/        # Parking management with ML suggestions
+│   ├── ml/             # ML recommendation components
+│   └── ...
+├── pages/              # Page-level components
+├── api/                # API client and ML service integration
+├── hooks/              # Custom React hooks
+└── lib/                # Utility functions and configurations
+
+backend/
+├── models/             # MongoDB data models
+├── routes/             # API route handlers
+├── middleware/         # Authentication and validation middleware
+├── utils/              # Helper functions
+├── ml/                 # ML service integration utilities
+└── index.js            # Main application entry point
+
+ml_service/
+├── app.py              # Flask application with ML models
+├── recommendation_engine.py  # Core ML algorithms
+├── data_processor.py   # Data preprocessing utilities
+└── model_trainer.py    # ML model training scripts
+```
+
+### Development Scripts
+
+#### Frontend
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+```
+
+#### Backend
+```bash
+npm run dev          # Start development server with nodemon
+npm start            # Start production server
+npm run ml:health    # Check ML service connectivity
+```
+
+#### ML Service
+```bash
+python app.py                    # Start ML service
+python -m pytest                 # Run ML service tests
+python model_trainer.py          # Retrain ML models
+```
+
+### Code Quality
+
+The project maintains high code quality standards:
+
+- **TypeScript** for type safety in frontend
+- **ESLint** for code linting
+- **Prettier** for code formatting
+- **Black** for Python code formatting
+- **Flake8** for Python linting
+- **Husky** for git hooks (if configured)
+
+---
+
+## 🧪 Testing
+
+### Running Tests
+
+```bash
+# Frontend tests
+cd frontend
+npm test
+
+# Backend tests
+cd backend
+npm test
+
+# ML Service tests
+cd ml_service
+python -m pytest
+```
+
+### Test Coverage
+
+The application includes comprehensive test coverage for:
+- Component rendering and interactions
+- API integration and ML service connectivity
+- Authentication flows and security
+- Payment processing with Chapa gateway
+- ML recommendation algorithms
+- Error handling and edge cases
+
+---
+
+## 🚀 Deployment
+
+### Environment Setup
+
+1. **Production Environment Variables:**
+   - Set `NODE_ENV=production`
+   - Configure production database URL
+   - Set secure JWT secret
+   - Configure production payment gateway keys
+   - Set up ML service production URL
+
+2. **Build Optimization:**
+   ```bash
+   cd frontend
+   npm run build
+   ```
+
+3. **ML Service Deployment:**
+   ```bash
+   cd ml_service
+   pip install -r requirements.txt
+   python app.py
+   ```
+
+4. **Server Configuration:**
+   - Configure reverse proxy (nginx/apache)
+   - Set up SSL certificates
+   - Configure environment-specific settings
+
+### Docker Deployment
+
+```dockerfile
+# Dockerfile for backend
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+EXPOSE 5001
+CMD ["npm", "start"]
+
+# Dockerfile for ML service
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 5002
+CMD ["python", "app.py"]
 ```
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
+We welcome contributions to the Smart Campus Management System. Please follow these guidelines:
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+### Development Workflow
 
-### Development Guidelines
+1. **Fork the Repository**
+2. **Create a Feature Branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. **Make Changes**
+4. **Run Tests**
+5. **Commit Changes**
+   ```bash
+   git commit -m "Add: Brief description of changes"
+   ```
+6. **Push to Branch**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+7. **Create Pull Request**
 
-- Follow the existing code style and conventions
-- Write clear, concise commit messages
-- Add tests for new features
-- Update documentation as needed
+### Code Standards
+
+- Follow TypeScript best practices
+- Use meaningful variable and function names
+- Write comprehensive comments for complex logic
 - Ensure all tests pass before submitting
+- Follow the existing code style and structure
+
+### Commit Message Format
+
+```
+type: Brief description of changes
+
+Detailed explanation of what was changed and why
+```
+
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the ISC License. See the LICENSE file for details.
+
+---
+
+## 🆘 Support
+
+For support and questions:
+
+- **Documentation:** Check the `/docs` directory for detailed guides
+- **Issues:** Use GitHub Issues for bug reports and feature requests
+- **Discussions:** Use GitHub Discussions for general questions
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **Database Connection Issues**
+   - Verify MongoDB connection string
+   - Check network connectivity
+   - Ensure MongoDB service is running
+
+2. **ML Service Connection Issues**
+   - Verify ML service is running on port 5002
+   - Check ML_SERVICE_URL in backend .env
+   - Ensure Python dependencies are installed
+
+3. **Authentication Problems**
+   - Verify JWT secret is set
+   - Check token expiration
+   - Ensure proper user roles
+
+4. **Payment Integration Issues**
+   - Verify Chapa API keys
+   - Check webhook configurations
+   - Review payment gateway logs
+
+### System Requirements
+
+- **Minimum Node.js Version:** 18.0.0
+- **Minimum Python Version:** 3.8.0
+- **Recommended RAM:** 8GB (for ML service)
+- **Storage:** 1GB for application and database
+- **Network:** Stable internet connection for payment processing and ML updates
 
 ---
 
@@ -512,12 +984,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Charts**: [Recharts](https://recharts.org/) for data visualization
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) for utility-first CSS
 - **ML Libraries**: [scikit-learn](https://scikit-learn.org/) for machine learning algorithms
+- **Payment Gateway**: [Chapa](https://chapa.co/) for secure payment processing
 
 ---
 
 <div align="center">
 
-**Made with ❤️ for modern educational institutions**
+**Smart Campus Management System** - Streamlining campus operations through innovative technology and AI-powered solutions.
 
 [⭐ Star us on GitHub](https://github.com/your-repo) • [🐛 Report Issues](https://github.com/your-repo/issues) • [💬 Join Discussions](https://github.com/your-repo/discussions)
 
