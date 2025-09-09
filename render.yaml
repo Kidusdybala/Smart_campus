@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: smart-campus-backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false  # Set in Render dashboard
+      - key: JWT_SECRET
+        sync: false
+      - key: CHAPA_SECRET_KEY
+        sync: false
+      - key: CHAPA_PUBLIC_KEY
+        sync: false
+      - key: CHAPA_BASE_URL
+        value: https://api.chapa.co/v1
+      - key: BASE_URL
+        sync: false  # Will be the Render service URL
+      - key: FRONTEND_URL
+        sync: false  # Will be the Vercel URL
