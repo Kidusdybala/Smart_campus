@@ -1,4 +1,4 @@
-# 🎓 Smart Campus Management System
+#  Smart Campus Management System
 
 <div align="center">
 
@@ -19,92 +19,92 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
-- [🚀 Key Features](#-key-features)
-- [🤖 Machine Learning Integration](#-machine-learning-integration)
-- [🛠️ Technology Stack](#️-technology-stack)
-- [🏗️ Architecture](#️-architecture)
-- [📸 Screenshots](#-screenshots)
-- [⚡ Prerequisites](#-prerequisites)
-- [🚀 Installation](#-installation)
-- [⚙️ Configuration](#️-configuration)
-- [🗄️ Database Setup](#️-database-setup)
-- [🏃‍♂️ Running the Application](#️-running-the-application)
-- [🔌 API Documentation](#-api-documentation)
-- [👥 User Roles](#-user-roles)
-- [💻 Development](#-development)
-- [🧪 Testing](#-testing)
-- [🚀 Deployment](#-deployment)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
-- [🆘 Support](#-support)
+- [ Key Features](#-key-features)
+- [ Machine Learning Integration](#-machine-learning-integration)
+- [ Technology Stack](#️-technology-stack)
+- [ Architecture](#️-architecture)
+- [ Screenshots](#-screenshots)
+- [ Prerequisites](#-prerequisites)
+- [ Installation](#-installation)
+- [ Configuration](#️-configuration)
+- [ Database Setup](#️-database-setup)
+- [ Running the Application](#️-running-the-application)
+- [ API Documentation](#-api-documentation)
+- [ User Roles](#-user-roles)
+- [ Development](#-development)
+- [ Testing](#-testing)
+- [ Deployment](#-deployment)
+- [ Contributing](#-contributing)
+- [ License](#-license)
+- [ Support](#-support)
 
 ---
 
-## 🌟 Overview
+##  Overview
 
 The **Smart Campus Management System** is a cutting-edge full-stack web application that provides a unified platform for managing campus activities with integrated AI-powered recommendations. The system supports multiple user roles (students, staff, administrators, and cafeteria staff) and offers a seamless experience across different devices.
 
-### 🎯 Key Highlights
+###  Key Highlights
 
-- **🤖 AI-Powered Intelligence**: Advanced ML algorithms for personalized recommendations
-- **📱 Multi-Role Architecture**: Separate dashboards for Students, Staff, Admins, and Cafeteria
-- **⚡ Real-Time Updates**: Live notifications and status updates across all modules
-- **🔐 Secure Authentication**: JWT-based auth with role-based access control
-- **💳 Integrated Payments**: Chapa payment gateway with digital wallet system
-- **📊 Comprehensive Analytics**: Real-time dashboards and detailed reporting
+- ** AI-Powered Intelligence**: Advanced ML algorithms for personalized recommendations
+- ** Multi-Role Architecture**: Separate dashboards for Students, Staff, Admins, and Cafeteria
+- ** Real-Time Updates**: Live notifications and status updates across all modules
+- ** Secure Authentication**: JWT-based auth with role-based access control
+- ** Integrated Payments**: Chapa payment gateway with digital wallet system
+- ** Comprehensive Analytics**: Real-time dashboards and detailed reporting
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
 ### 👨‍🎓 Student Portal
-- **📱 QR Code Attendance**: Instant check-in/check-out with mobile QR scanner
-- **🍽️ Smart Food Ordering**: AI-powered menu recommendations with real-time tracking
-- **🚗 Intelligent Parking**: ML-driven parking spot suggestions and reservations
-- **📚 Academic Dashboard**: View grades, attendance records, and class schedules
-- **🤖 Personalized Recommendations**: ML-generated suggestions for food and parking
-- **💰 Digital Wallet**: Integrated payment system with Chapa gateway
-- **👤 Profile Management**: Update personal information and vehicle details
+- ** QR Code Attendance**: Instant check-in/check-out with mobile QR scanner
+- ** Smart Food Ordering**: AI-powered menu recommendations with real-time tracking
+- ** Intelligent Parking**: ML-driven parking spot suggestions and reservations
+- ** Academic Dashboard**: View grades, attendance records, and class schedules
+- ** Personalized Recommendations**: ML-generated suggestions for food and parking
+- ** Digital Wallet**: Integrated payment system with Chapa gateway
+- ** Profile Management**: Update personal information and vehicle details
 
 ### 👨‍🏫 Staff Portal
-- **📋 Class Management**: Create assignments, send announcements, schedule office hours
-- **📝 Grade Management**: Input and manage student grades with approval workflows
-- **👥 Attendance Oversight**: Monitor student attendance and generate reports
-- **📢 Communication Tools**: Send announcements and notifications to students
-- **📅 Schedule Management**: View and manage class schedules
+- ** Class Management**: Create assignments, send announcements, schedule office hours
+- ** Grade Management**: Input and manage student grades with approval workflows
+- ** Attendance Oversight**: Monitor student attendance and generate reports
+- ** Communication Tools**: Send announcements and notifications to students
+- ** Schedule Management**: View and manage class schedules
 
 ### 👨‍💼 Admin Portal
-- **👥 User Management**: Comprehensive user administration and role assignment
-- **📊 System Analytics**: Real-time dashboards with key performance indicators
-- **⚙️ Campus Settings**: Configure system parameters and campus information
-- **🔍 System Health Monitoring**: Track system performance and uptime
-- **✅ Grade Approval**: Review and approve staff-entered grades
-- **🚗 Parking Management**: Oversee parking reservations and clear reservations
+- ** User Management**: Comprehensive user administration and role assignment
+- ** System Analytics**: Real-time dashboards with key performance indicators
+- ** Campus Settings**: Configure system parameters and campus information
+- ** System Health Monitoring**: Track system performance and uptime
+- ** Grade Approval**: Review and approve staff-entered grades
+- ** Parking Management**: Oversee parking reservations and clear reservations
 
-### 🍽️ Cafeteria Portal
-- **📋 Order Management**: Process and track food orders in real-time
-- **🍽️ Menu Management**: Update food items, prices, and availability
-- **📦 Inventory Tracking**: Monitor stock levels and generate reports
-- **💬 Customer Service**: Handle order modifications and customer inquiries
+###  Cafeteria Portal
+- ** Order Management**: Process and track food orders in real-time
+- ** Menu Management**: Update food items, prices, and availability
+- ** Inventory Tracking**: Monitor stock levels and generate reports
+- ** Customer Service**: Handle order modifications and customer inquiries
 
 ---
 
-## 🤖 Machine Learning Integration
+##  Machine Learning Integration
 
 <div align="center">
 
-### 🚀 AI-Powered Smart Campus Intelligence
+###  AI-Powered Smart Campus Intelligence
 
 **Revolutionary ML-driven recommendations that learn from user behavior**
 
 </div>
 
-### 🎯 ML-Powered Recommendation Engines
+###  ML-Powered Recommendation Engines
 
-#### 🍽️ Intelligent Food Recommendation System
+####  Intelligent Food Recommendation System
 
 The system employs **sophisticated machine learning algorithms** to provide personalized food recommendations:
 
@@ -140,7 +140,7 @@ class RecommendationEngine:
 - ✅ **Adaptive Scoring**: Adjusts recommendations based on user feedback
 - ✅ **Multi-factor Analysis**: Considers order frequency, recency, and trends
 
-#### 🚗 Smart Parking Recommendation Engine
+####  Smart Parking Recommendation Engine
 
 **AI-driven parking spot optimization using behavioral pattern recognition:**
 
@@ -206,7 +206,7 @@ def analyze_parking_patterns(user_id, reservations):
 4. **Recommendation Generation**: Personalized suggestions based on trained models
 5. **Feedback Loop**: User interactions improve future recommendations
 
-### 🎨 ML Integration in UI
+###  ML Integration in UI
 
 The ML recommendations are seamlessly integrated throughout the application:
 
@@ -410,7 +410,7 @@ The backend follows RESTful API design principles with the following structure:
 
 ---
 
-## ⚡ Prerequisites
+##  Prerequisites
 
 Before running the application, ensure you have the following installed:
 
@@ -422,7 +422,7 @@ Before running the application, ensure you have the following installed:
 
 ---
 
-## 🚀 Installation
+##  Installation
 
 ### 1. Clone the Repository
 
@@ -542,7 +542,7 @@ This will create:
 
 ---
 
-## 🏃‍♂️ Running the Application
+##  Running the Application
 
 ### Development Mode
 
@@ -803,7 +803,7 @@ The project maintains high code quality standards:
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ### Running Tests
 
@@ -886,7 +886,7 @@ CMD ["python", "app.py"]
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 We welcome contributions to the Smart Campus Management System. Please follow these guidelines:
 
@@ -935,7 +935,7 @@ This project is licensed under the ISC License. See the LICENSE file for details
 
 ---
 
-## 🆘 Support
+##  Support
 
 For support and questions:
 
@@ -977,7 +977,7 @@ For support and questions:
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/) for beautiful, accessible components
 - **Icons**: [Lucide React](https://lucide.dev/) for consistent iconography
@@ -992,6 +992,6 @@ For support and questions:
 
 **Smart Campus Management System** - Streamlining campus operations through innovative technology and AI-powered solutions.
 
-[⭐ Star us on GitHub](https://github.com/your-repo) • [🐛 Report Issues](https://github.com/your-repo/issues) • [💬 Join Discussions](https://github.com/your-repo/discussions)
+[⭐ Star us on GitHub](https://github.com/kidusdybala/Smart_campus) • [🐛 Report Issues](https://github.com/kidusdybala/Smart_campus) • [💬 Join Discussions](https://github.com/kidusdybala/Smart_campus)
 
 </div>
