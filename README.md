@@ -1,5 +1,6 @@
 <div align="center">
-#  Smart Campus Management System
+
+    #  Smart Campus Management System
 
 <div align="center">
 
