@@ -1,4 +1,4 @@
-<h1 align="center">Smart Campus Management System</h1>
+<h1 align="center">Smart Campus System</h1>
 
 <div align="center">
 
