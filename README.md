@@ -47,51 +47,48 @@
 
 The **Smart Campus Management System** is a cutting-edge full-stack web application that provides a unified platform for managing campus activities with integrated AI-powered recommendations. The system supports multiple user roles (students, staff, administrators, and cafeteria staff) and offers a seamless experience across different devices.
 
-###  Key Highlights
+### ✨ Key Highlights
 
-- **  AI-Powered Intelligence**: Advanced ML algorithms for personalized recommendations
-- **  Multi-Role Architecture**: Separate dashboards for Students, Staff, Admins, and Cafeteria
-- **  Real-Time Updates**: Live notifications and status updates across all modules
-- **  Secure Authentication**: JWT-based auth with role-based access control
-- **  Integrated Payments**: Chapa payment gateway with digital wallet system
-- **  Comprehensive Analytics**: Real-time dashboards and detailed reporting
-
----
-
-##  Key Features
-
-### 👨‍🎓 Student Portal
-- ** QR Code Attendance**: Instant check-in/check-out with mobile QR scanner
-- ** Smart Food Ordering**: AI-powered menu recommendations with real-time tracking
-- ** Intelligent Parking**: ML-driven parking spot suggestions and reservations
-- ** Academic Dashboard**: View grades, attendance records, and class schedules
-- ** Personalized Recommendations**: ML-generated suggestions for food and parking
-- ** Digital Wallet**: Integrated payment system with Chapa gateway
-- ** Profile Management**: Update personal information and vehicle details
-
-### 👨‍🏫 Staff Portal
-- ** Class Management**: Create assignments, send announcements, schedule office hours
-- ** Grade Management**: Input and manage student grades with approval workflows
-- ** Attendance Oversight**: Monitor student attendance and generate reports
-- ** Communication Tools**: Send announcements and notifications to students
-- ** Schedule Management**: View and manage class schedules
-
-### 👨‍💼 Admin Portal
-- ** User Management**: Comprehensive user administration and role assignment
-- ** System Analytics**: Real-time dashboards with key performance indicators
-- ** Campus Settings**: Configure system parameters and campus information
-- ** System Health Monitoring**: Track system performance and uptime
-- ** Grade Approval**: Review and approve staff-entered grades
-- ** Parking Management**: Oversee parking reservations and clear reservations
-
-###  Cafeteria Portal
-- ** Order Management**: Process and track food orders in real-time
-- ** Menu Management**: Update food items, prices, and availability
-- ** Inventory Tracking**: Monitor stock levels and generate reports
-- ** Customer Service**: Handle order modifications and customer inquiries
+- 🔹 **AI-Powered Intelligence**: Advanced ML algorithms for personalized recommendations  
+- 🔹 **Multi-Role Architecture**: Separate dashboards for Students, Staff, Admins, and Cafeteria  
+- 🔹 **Real-Time Updates**: Live notifications and status updates across all modules  
+- 🔹 **Secure Authentication**: JWT-based auth with role-based access control  
+- 🔹 **Integrated Payments**: Chapa payment gateway with digital wallet system  
+- 🔹 **Comprehensive Analytics**: Real-time dashboards and detailed reporting  
 
 ---
 
+## 🚀 Key Features
+
+### Student Portal
+- ✅ **QR Code Attendance**: Instant check-in/check-out with mobile QR scanner  
+- ✅ **Smart Food Ordering**: AI-powered menu recommendations with real-time tracking  
+- ✅ **Intelligent Parking**: ML-driven parking spot suggestions and reservations  
+- ✅ **Academic Dashboard**: View grades, attendance records, and class schedules  
+- ✅ **Personalized Recommendations**: ML-generated suggestions for food and parking  
+- ✅ **Digital Wallet**: Integrated payment system with Chapa gateway  
+- ✅ **Profile Management**: Update personal information and vehicle details  
+
+### Staff Portal
+- ✅ **Class Management**: Create assignments, send announcements, schedule office hours  
+- ✅ **Grade Management**: Input and manage student grades with approval workflows  
+- ✅ **Attendance Oversight**: Monitor student attendance and generate reports  
+- ✅ **Communication Tools**: Send announcements and notifications to students  
+- ✅ **Schedule Management**: View and manage class schedules  
+
+### Admin Portal
+- ✅ **User Management**: Comprehensive user administration and role assignment  
+- ✅ **System Analytics**: Real-time dashboards with key performance indicators  
+- ✅ **Campus Settings**: Configure system parameters and campus information  
+- ✅ **System Health Monitoring**: Track system performance and uptime  
+- ✅ **Grade Approval**: Review and approve staff-entered grades  
+- ✅ **Parking Management**: Oversee parking reservations and clear reservations  
+
+### Cafeteria Portal
+- ✅ **Order Management**: Process and track food orders in real-time  
+- ✅ **Menu Management**: Update food items, prices, and availability  
+- ✅ **Inventory Tracking**: Monitor stock levels and generate reports  
+- ✅ **Customer Service**: Handle order modifications and customer inquiries  
 ##  Machine Learning Integration
 
 <div align="center">
