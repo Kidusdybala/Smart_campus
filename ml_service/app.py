@@ -2,16 +2,13 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics.pairwise import cosine_similarity
-from scipy.sparse import csr_matrix
-import joblib
 import os
 from datetime import datetime, timedelta
 import pymongo
 from dotenv import load_dotenv
 import json
+import random
+from collections import Counter, defaultdict
 
 # Load environment variables
 load_dotenv()
@@ -49,12 +46,9 @@ db = mongo_client['smartcampus'] if mongo_client is not None else None
 
 class RecommendationEngine:
     def __init__(self):
-        self.food_knn_model = None
-        self.parking_knn_model = None
-        self.food_scaler = StandardScaler()
-        self.parking_scaler = StandardScaler()
-        self.user_item_matrix = None
-        self.item_user_matrix = None
+        self.food_popularity = Counter()
+        self.user_preferences = defaultdict(Counter)
+        self.parking_usage = defaultdict(Counter)
 
     def load_data(self):
         """Load and preprocess data from MongoDB with fallback"""
@@ -186,121 +180,56 @@ class RecommendationEngine:
             ]
         }
 
-    def preprocess_orders_data(self, orders):
-        """Preprocess orders data for ML models"""
-        if not orders:
-            return None, None
 
-        # Create user-item interaction matrix
-        user_ids = list(set(order['user'] for order in orders))
-        food_ids = list(set(item['food'] for order in orders for item in order.get('items', [])))
+    def analyze_data(self, orders, parking_data):
+        """Analyze order and parking data for recommendations"""
+        # Reset counters
+        self.food_popularity.clear()
+        self.user_preferences.clear()
+        self.parking_usage.clear()
 
-        user_id_map = {uid: i for i, uid in enumerate(user_ids)}
-        food_id_map = {fid: i for i, fid in enumerate(food_ids)}
-
-        # Create interaction matrix
-        matrix = np.zeros((len(user_ids), len(food_ids)))
-
+        # Analyze food popularity and user preferences
         for order in orders:
-            user_idx = user_id_map.get(str(order['user']))
-            if user_idx is not None:
+            user_id = str(order.get('user', ''))
+            if user_id:
                 for item in order.get('items', []):
-                    food_idx = food_id_map.get(str(item['food']))
-                    if food_idx is not None:
-                        matrix[user_idx, food_idx] += item.get('quantity', 1)
+                    food_id = str(item.get('food', ''))
+                    quantity = item.get('quantity', 1)
 
-        return matrix, {'users': user_id_map, 'foods': food_id_map}
+                    self.food_popularity[food_id] += quantity
+                    self.user_preferences[user_id][food_id] += quantity
 
-    def train_collaborative_filtering(self, orders):
-        """Train collaborative filtering model using KNN"""
-        try:
-            matrix, mappings = self.preprocess_orders_data(orders)
+        # Analyze parking usage
+        for reservation in parking_data:
+            user_id = str(reservation.get('user', ''))
+            slot = reservation.get('slot', '')
+            if user_id and slot:
+                self.parking_usage[user_id][slot] += 1
 
-            if matrix is None or matrix.size == 0:
-                print("No data available for training")
-                return None
+        return True
 
-            # Normalize the matrix
-            normalized_matrix = self.food_scaler.fit_transform(matrix)
+    def get_popular_recommendations(self, user_id, foods_data, top_n=3):
+        """Get recommendations based on popularity and user preferences"""
+        user_id = str(user_id)
+        user_ordered_foods = set(self.user_preferences.get(user_id, {}).keys())
 
-            # Train KNN model
-            self.food_knn_model = NearestNeighbors(n_neighbors=min(5, len(matrix)), metric='cosine')
-            self.food_knn_model.fit(normalized_matrix)
+        # Get most popular foods that user hasn't ordered
+        recommendations = []
+        for food_id, popularity in self.food_popularity.most_common():
+            if food_id not in user_ordered_foods:
+                food_doc = next((f for f in foods_data if str(f.get('_id')) == food_id), None)
+                if food_doc:
+                    recommendations.append({
+                        'id': food_id,
+                        'name': food_doc.get('name', 'Unknown'),
+                        'price': food_doc.get('price', 0),
+                        'score': popularity,
+                        'reason': 'Popular among students'
+                    })
+                    if len(recommendations) >= top_n:
+                        break
 
-            return mappings
-
-        except Exception as e:
-            print(f"Error training collaborative filtering: {e}")
-            return None
-
-    def get_collaborative_recommendations(self, user_id, mappings, orders_data, top_n=3):
-        """Get collaborative filtering recommendations"""
-        if mongo_client is None or db is None:
-            # Return mock collaborative recommendations
-            return [
-                {
-                    'id': 'mock_food_3',
-                    'name': 'Coca Cola',
-                    'price': 25,
-                    'score': 2,
-                    'reason': 'Popular among similar students'
-                }
-            ]
-
-        if self.food_knn_model is None or mappings is None:
-            return []
-
-        try:
-            user_idx = mappings['users'].get(str(user_id))
-            if user_idx is None:
-                return []
-
-            # Find similar users
-            user_vector = self.food_scaler.transform(
-                np.zeros((1, len(mappings['foods'])))
-            )
-            distances, indices = self.food_knn_model.kneighbors(user_vector, n_neighbors=min(5, len(mappings['users'])))
-
-            # Get recommendations from similar users
-            recommendations = {}
-            for idx in indices[0]:
-                if idx != user_idx:
-                    # Get foods that similar user has ordered but current user hasn't
-                    similar_user_id = list(mappings['users'].keys())[list(mappings['users'].values()).index(idx)]
-                    similar_orders = [o for o in orders_data if str(o.get('user')) == similar_user_id]
-
-                    for order in similar_orders:
-                        for item in order.get('items', []):
-                            food_id = str(item['food'])
-                            if food_id not in mappings['foods']:
-                                continue
-
-                            # Check if current user has ordered this food
-                            user_orders = [o for o in orders_data if str(o.get('user')) == user_id and
-                                         any(str(i.get('food')) == str(item['food']) for i in o.get('items', []))]
-
-                            if not user_orders:
-                                if food_id not in recommendations:
-                                    # Find food details from foods data
-                                    food_doc = next((f for f in data['foods'] if str(f.get('_id')) == food_id), None)
-                                    if food_doc:
-                                        recommendations[food_id] = {
-                                            'id': food_id,
-                                            'name': food_doc.get('name', 'Unknown'),
-                                            'price': food_doc.get('price', 0),
-                                            'score': 1,
-                                            'reason': 'Popular among similar users'
-                                        }
-                                else:
-                                    recommendations[food_id]['score'] += 1
-
-            # Sort and return top recommendations
-            sorted_recs = sorted(recommendations.values(), key=lambda x: x['score'], reverse=True)
-            return sorted_recs[:top_n]
-
-        except Exception as e:
-            print(f"Error getting collaborative recommendations: {e}")
-            return []
+        return recommendations
 
     def calculate_time_weights(self, orders):
         """Calculate time-weighted scores for orders"""
@@ -446,21 +375,21 @@ def get_recommendations(user_id):
         if not data:
             return jsonify({'error': 'Could not load data'}), 500
 
-        # Train/update models
-        mappings = engine.train_collaborative_filtering(data['orders'])
+        # Analyze the data
+        engine.analyze_data(data['orders'], data['parking'])
 
         # Get user's orders and calculate time weights
         user_orders = [o for o in data['orders'] if str(o.get('user')) == user_id]
         user_orders = engine.calculate_time_weights(user_orders)
-        
+
         # Analyze trends
         trends = engine.analyze_trends(user_id, user_orders)
 
         # Get personal recommendations
         personal_recs = engine.get_personal_recommendations(user_id, user_orders, trends, data['foods'])
 
-        # Get collaborative recommendations
-        collaborative_recs = engine.get_collaborative_recommendations(user_id, mappings, data['orders'])
+        # Get popular recommendations
+        collaborative_recs = engine.get_popular_recommendations(user_id, data['foods'])
         
         # Combine recommendations
         all_food_recs = personal_recs + collaborative_recs
@@ -526,7 +455,7 @@ def get_recommendations(user_id):
             'foods': final_food_recs,
             'parking': parking_recs,
             'lastUpdated': datetime.now().isoformat(),
-            'algorithm': 'python_ml_adaptive_hybrid',
+            'algorithm': 'python_rule_based',
             'trends': trends
         })
 
@@ -542,13 +471,13 @@ def train_models():
         if not data:
             return jsonify({'error': 'Could not load data'}), 500
 
-        mappings = engine.train_collaborative_filtering(data['orders'])
+        success = engine.analyze_data(data['orders'], data['parking'])
 
         return jsonify({
             'status': 'success',
-            'message': 'ML models trained successfully',
-            'users_count': len(mappings['users']) if mappings else 0,
-            'foods_count': len(mappings['foods']) if mappings else 0
+            'message': 'Data analyzed successfully',
+            'orders_count': len(data['orders']),
+            'foods_count': len(data['foods'])
         })
 
     except Exception as e:
