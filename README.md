@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Smart Campus Logo](public/logo.png)
+![Smart Campus Logo](frontend/public/logo.png)
 
 **A comprehensive web-based platform designed to streamline campus operations and enhance the student experience through integrated digital services including attendance tracking, food ordering, parking management, academic scheduling, and AI-powered recommendations.**
 
@@ -347,65 +347,65 @@ The backend follows RESTful API design principles with the following structure:
 ### Main Application Views
 
 #### Student Dashboard
-![Student Main Page](public/readme/student%20main%20page.png)
+![Student Main Page](frontend/public/readme/student%20main%20page.png)
 *The central hub for students with quick actions and AI-powered personalized recommendations*
 
 #### Admin Dashboard
-![Admin Main Page](public/readme/Admin%20main%20page.png)
+![Admin Main Page](frontend/public/readme/Admin%20main%20page.png)
 *Comprehensive admin console with system overview and management tools*
 
 #### Cafeteria Dashboard
-![Cafeteria Dashboard](public/readme/cafeteria%20dashboard.png)
+![Cafeteria Dashboard](frontend/public/readme/cafeteria%20dashboard.png)
 *Order management and menu administration interface*
 
 ### Feature-Specific Views
 
 #### QR Scanner for Attendance
-![Student Attendance QR Scanner](public/readme/student%20attendance%20qr%20scanner%20page.png)
+![Student Attendance QR Scanner](frontend/public/readme/student%20attendance%20qr%20scanner%20page.png)
 *Mobile-optimized QR scanner for seamless attendance tracking*
 
 #### Food Ordering System
-![Student Food Ordering](public/readme/student%20food%20ordering%20page.png)
+![Student Food Ordering](frontend/public/readme/student%20food%20ordering%20page.png)
 *Intuitive food ordering with ML-powered recommendations*
 
 #### Parking Management
-![Student Parking Page](public/readme/student%20parking%20page.png)
+![Student Parking Page](frontend/public/readme/student%20parking%20page.png)
 *Interactive parking map with AI-powered spot recommendations*
 
 #### Grade Management
-![Student Grade Page](public/readme/student%20grade%20page.png)
+![Student Grade Page](frontend/public/readme/student%20grade%20page.png)
 *Academic performance tracking and grade visualization*
 
 #### ML Recommendations
-![Student ML Recommendation](public/readme/student%20ml%20recommendation%20page.png)
+![Student ML Recommendation](frontend/public/readme/student%20ml%20recommendation%20page.png)
 *AI-powered personalized suggestions for food and parking*
 
 #### Wallet and Payment
-![Student Wallet Page](public/readme/student%20wallet%20and%20chapa%20topup%20page.png)
+![Student Wallet Page](frontend/public/readme/student%20wallet%20and%20chapa%20topup%20page.png)
 *Digital wallet with integrated payment processing*
 
 ### Administrative Features
 
 #### User Management
-![Admin User Management](public/readme/admin%20user%20managment.png)
+![Admin User Management](frontend/public/readme/admin%20user%20managment.png)
 *Complete user administration and role management*
 
 #### Campus Settings
-![Admin Campus Settings](public/readme/admin%20campus%20setting.png)
+![Admin Campus Settings](frontend/public/readme/admin%20campus%20setting.png)
 *System configuration and campus parameter management*
 
 #### Staff Features
 
 #### Staff Main Page
-![Staff Main Page](public/readme/staff%20main%20page.png)
+![Staff Main Page](frontend/public/readme/staff%20main%20page.png)
 *Staff dashboard with class management and communication tools*
 
 #### Grade Management
-![Staff Grade Management](public/readme/staff%20grade%20managment%20page.png)
+![Staff Grade Management](frontend/public/readme/staff%20grade%20managment%20page.png)
 *Grade input and management interface for faculty*
 
 #### Assignment Creation
-![Staff Add Assignment](public/readme/staff%20add%20assignment%20page.png)
+![Staff Add Assignment](frontend/public/readme/staff%20add%20assignment%20page.png)
 *Assignment creation and distribution tool*
 
 ---
