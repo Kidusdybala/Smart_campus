@@ -55,7 +55,88 @@ export function FoodOrderingHeader({
   return (
     <header className="bg-gradient-primary shadow-card sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+        {/* Mobile Layout */}
+        <div className="flex flex-col space-y-4 md:hidden">
+          {/* Top Row: Back button and title */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20"
+                onClick={onBack}
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div className="flex items-center gap-2">
+                <img
+                  src="/logo.png"
+                  alt="Smart Campus Logo"
+                  className="w-8 h-8 rounded-lg object-contain bg-white/20 p-1"
+                />
+                <div>
+                  <h1 className="text-lg font-bold text-white">Food Ordering</h1>
+                  <p className="text-white/80 text-xs">Campus Cafeteria</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Row: Wallet and Cart */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="text-white/80 text-xs">
+                Wallet: {walletBalance.toFixed(2)} ETB
+              </div>
+              <Dialog open={topupDialogOpen} onOpenChange={setTopupDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20 px-2"
+                  >
+                    <CreditCard className="w-3 h-3" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Top Up Wallet</DialogTitle>
+                    <DialogDescription>
+                      Add funds to your wallet to pay for food orders.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="amount">Amount (ETB)</Label>
+                      <Input
+                        id="amount"
+                        type="number"
+                        placeholder="Enter amount"
+                        value={topupAmount}
+                        onChange={(e) => setTopupAmount(e.target.value)}
+                      />
+                    </div>
+                    <Button onClick={topupWallet} className="w-full">
+                      Top Up Wallet
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs px-3"
+              onClick={placeOrder}
+            >
+              <ShoppingCart className="w-3 h-3 mr-1" />
+              Cart ({getCartItemsCount()})
+            </Button>
+          </div>
+        </div>
+
+        {/* Desktop Layout */}
+        <div className="hidden md:flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"

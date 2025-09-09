@@ -321,9 +321,39 @@ export function FoodOrdering({ onBack, user }: FoodOrderingProps) {
       />
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
+        {/* Mobile Layout - Stack vertically */}
+        <div className="flex flex-col space-y-6 md:hidden">
+          {/* Menu Section */}
+          <div>
+            <MenuDisplay
+              menuItems={menuItems}
+              loading={loading}
+              cart={cart}
+              addToCart={addToCart}
+              removeFromCart={removeFromCart}
+            />
+          </div>
+
+          {/* Cart Summary - Show prominently on mobile */}
+          <div>
+            <CartSummary
+              cart={cart}
+              menuItems={menuItems}
+              getCartTotal={getCartTotal}
+              placeOrder={placeOrder}
+            />
+          </div>
+
+          {/* Order History */}
+          <div>
+            <OrderHistory orders={orders} ordersLoading={ordersLoading} />
+          </div>
+        </div>
+
+        {/* Desktop Layout - Grid */}
+        <div className="hidden md:grid md:grid-cols-3 gap-8">
           {/* Menu */}
-          <div className="lg:col-span-2">
+          <div className="md:col-span-2">
             <MenuDisplay
               menuItems={menuItems}
               loading={loading}

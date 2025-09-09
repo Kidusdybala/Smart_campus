@@ -126,7 +126,66 @@ export function CafeteriaDashboard({ user, onLogout }: CafeteriaDashboardProps) 
       {/* Header */}
       <header className="bg-gradient-primary shadow-card sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          {/* Mobile Layout */}
+          <div className="flex flex-col space-y-3 md:hidden">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <img
+                  src="/logo.png"
+                  alt="Smart Campus Logo"
+                  className="w-8 h-8 rounded-lg object-contain bg-white/20 p-1"
+                />
+                <div>
+                  <h1 className="text-lg font-bold text-white">Cafeteria Dashboard</h1>
+                  <p className="text-white/80 text-xs">Manage food orders</p>
+                </div>
+              </div>
+              {stats.pendingOrders > 0 && (
+                <div className="relative">
+                  <AlertCircle className="w-5 h-5 text-white" />
+                  <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 py-0 rounded-full">
+                    {stats.pendingOrders}
+                  </Badge>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-white/80 text-xs">
+                Welcome, {user.name}
+              </div>
+              {onLogout && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-white hover:bg-white/20 text-xs px-2"
+                    >
+                      <LogOut className="w-3 h-3 mr-1" />
+                      Logout
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        You will be redirected to the login page and will need to sign in again to access your dashboard.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={onLogout}>
+                        Logout
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden md:flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img
                 src="/logo.png"
@@ -139,46 +198,46 @@ export function CafeteriaDashboard({ user, onLogout }: CafeteriaDashboardProps) 
               </div>
             </div>
             <div className="flex items-center gap-4">
-               <div className="text-white/80 text-sm">
-                 Welcome, {user.name}
-               </div>
-               {stats.pendingOrders > 0 && (
-                 <div className="relative">
-                   <AlertCircle className="w-6 h-6 text-white" />
-                   <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                     {stats.pendingOrders}
-                   </Badge>
-                 </div>
-               )}
-               {onLogout && (
-                 <AlertDialog>
-                   <AlertDialogTrigger asChild>
-                     <Button
-                       variant="ghost"
-                       size="sm"
-                       className="text-white hover:bg-white/20"
-                     >
-                       <LogOut className="w-4 h-4 mr-2" />
-                       Logout
-                     </Button>
-                   </AlertDialogTrigger>
-                   <AlertDialogContent>
-                     <AlertDialogHeader>
-                       <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
-                       <AlertDialogDescription>
-                         You will be redirected to the login page and will need to sign in again to access your dashboard.
-                       </AlertDialogDescription>
-                     </AlertDialogHeader>
-                     <AlertDialogFooter>
-                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                       <AlertDialogAction onClick={onLogout}>
-                         Logout
-                       </AlertDialogAction>
-                     </AlertDialogFooter>
-                   </AlertDialogContent>
-                 </AlertDialog>
-               )}
-             </div>
+                <div className="text-white/80 text-sm">
+                  Welcome, {user.name}
+                </div>
+                {stats.pendingOrders > 0 && (
+                  <div className="relative">
+                    <AlertCircle className="w-6 h-6 text-white" />
+                    <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                      {stats.pendingOrders}
+                    </Badge>
+                  </div>
+                )}
+                {onLogout && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-white hover:bg-white/20"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          You will be redirected to the login page and will need to sign in again to access your dashboard.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={onLogout}>
+                          Logout
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
           </div>
         </div>
       </header>
@@ -243,40 +302,48 @@ export function CafeteriaDashboard({ user, onLogout }: CafeteriaDashboardProps) 
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="pending" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="pending">Pending ({orders.filter(o => o.status === 'ordered').length})</TabsTrigger>
-                <TabsTrigger value="preparing">Preparing ({orders.filter(o => o.status === 'preparing').length})</TabsTrigger>
-                <TabsTrigger value="ready">Ready ({orders.filter(o => o.status === 'ready').length})</TabsTrigger>
-                <TabsTrigger value="completed">Completed ({orders.filter(o => o.status === 'picked').length})</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
+                <TabsTrigger value="pending" className="text-xs md:text-sm px-2 md:px-4 py-2">
+                  Pending ({orders.filter(o => o.status === 'ordered').length})
+                </TabsTrigger>
+                <TabsTrigger value="preparing" className="text-xs md:text-sm px-2 md:px-4 py-2">
+                  Preparing ({orders.filter(o => o.status === 'preparing').length})
+                </TabsTrigger>
+                <TabsTrigger value="ready" className="text-xs md:text-sm px-2 md:px-4 py-2">
+                  Ready ({orders.filter(o => o.status === 'ready').length})
+                </TabsTrigger>
+                <TabsTrigger value="completed" className="text-xs md:text-sm px-2 md:px-4 py-2">
+                  Completed ({orders.filter(o => o.status === 'picked').length})
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="pending" className="space-y-4">
                 {orders.filter(order => order.status === 'ordered').map((order) => (
-                  <div key={order._id} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-medium">Order #{order._id.slice(-6)}</div>
-                      <Badge className={getStatusColor(order.status)}>
+                  <div key={order._id} className="p-3 md:p-4 border rounded-lg">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 space-y-2 md:space-y-0">
+                      <div className="font-medium text-sm md:text-base">Order #{order._id.slice(-6)}</div>
+                      <Badge className={`${getStatusColor(order.status)} text-xs`}>
                         {getStatusIcon(order.status)}
                         <span className="ml-1 capitalize">{order.status}</span>
                       </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">
+                    <div className="text-xs md:text-sm text-muted-foreground mb-2">
                       Customer: {order.user?.name || 'Unknown'}
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">
+                    <div className="text-xs md:text-sm text-muted-foreground mb-3">
                       Items: {(order.items || [])
                         .filter(item => item)
                         .map((item: OrderItem) => item?.food?.name || "")
                         .filter(Boolean)
                         .join(", ") || "Unknown"}
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Ordered: {new Date(order.orderedAt).toLocaleString()}</span>
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
+                      <span className="text-xs md:text-sm text-muted-foreground">Ordered: {new Date(order.orderedAt).toLocaleString()}</span>
                       <div className="flex gap-2">
                         <Button
                           size="sm"
                           onClick={() => updateOrderStatus(order._id, 'preparing')}
-                          className="bg-yellow-500 hover:bg-yellow-600"
+                          className="bg-yellow-500 hover:bg-yellow-600 text-xs md:text-sm px-3 md:px-4"
                         >
                           Start Preparing
                         </Button>
@@ -288,31 +355,31 @@ export function CafeteriaDashboard({ user, onLogout }: CafeteriaDashboardProps) 
 
               <TabsContent value="preparing" className="space-y-4">
                 {orders.filter(order => order.status === 'preparing').map((order) => (
-                  <div key={order._id} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-medium">Order #{order._id.slice(-6)}</div>
-                      <Badge className={getStatusColor(order.status)}>
+                  <div key={order._id} className="p-3 md:p-4 border rounded-lg">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 space-y-2 md:space-y-0">
+                      <div className="font-medium text-sm md:text-base">Order #{order._id.slice(-6)}</div>
+                      <Badge className={`${getStatusColor(order.status)} text-xs`}>
                         {getStatusIcon(order.status)}
                         <span className="ml-1 capitalize">{order.status}</span>
                       </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">
+                    <div className="text-xs md:text-sm text-muted-foreground mb-2">
                       Customer: {order.user?.name || 'Unknown'}
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">
+                    <div className="text-xs md:text-sm text-muted-foreground mb-3">
                       Items: {(order.items || [])
                         .filter(item => item)
                         .map((item: OrderItem) => item?.food?.name || "")
                         .filter(Boolean)
                         .join(", ") || "Unknown"}
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Ordered: {new Date(order.orderedAt).toLocaleString()}</span>
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
+                      <span className="text-xs md:text-sm text-muted-foreground">Ordered: {new Date(order.orderedAt).toLocaleString()}</span>
                       <div className="flex gap-2">
                         <Button
                           size="sm"
                           onClick={() => updateOrderStatus(order._id, 'ready')}
-                          className="bg-green-500 hover:bg-green-600"
+                          className="bg-green-500 hover:bg-green-600 text-xs md:text-sm px-3 md:px-4"
                         >
                           Mark as Ready
                         </Button>
@@ -324,31 +391,32 @@ export function CafeteriaDashboard({ user, onLogout }: CafeteriaDashboardProps) 
 
               <TabsContent value="ready" className="space-y-4">
                 {orders.filter(order => order.status === 'ready').map((order) => (
-                  <div key={order._id} className="p-4 border rounded-lg bg-green-50">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-medium">Order #{order._id.slice(-6)}</div>
-                      <Badge className={getStatusColor(order.status)}>
+                  <div key={order._id} className="p-3 md:p-4 border rounded-lg bg-green-50">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 space-y-2 md:space-y-0">
+                      <div className="font-medium text-sm md:text-base">Order #{order._id.slice(-6)}</div>
+                      <Badge className={`${getStatusColor(order.status)} text-xs`}>
                         {getStatusIcon(order.status)}
                         <span className="ml-1 capitalize">{order.status}</span>
                       </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">
+                    <div className="text-xs md:text-sm text-muted-foreground mb-2">
                       Customer: {order.user?.name || 'Unknown'}
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">
+                    <div className="text-xs md:text-sm text-muted-foreground mb-3">
                       Items: {(order.items || [])
                         .filter(item => item)
                         .map((item: OrderItem) => item?.food?.name || "")
                         .filter(Boolean)
                         .join(", ") || "Unknown"}
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Ready since: {new Date(order.updatedAt || order.orderedAt).toLocaleString()}</span>
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
+                      <span className="text-xs md:text-sm text-muted-foreground">Ready since: {new Date(order.updatedAt || order.orderedAt).toLocaleString()}</span>
                       <div className="flex gap-2">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => updateOrderStatus(order._id, 'picked')}
+                          className="text-xs md:text-sm px-3 md:px-4"
                         >
                           Mark as Picked Up
                         </Button>
@@ -360,27 +428,27 @@ export function CafeteriaDashboard({ user, onLogout }: CafeteriaDashboardProps) 
 
               <TabsContent value="completed" className="space-y-4">
                 {orders.filter(order => order.status === 'picked').map((order) => (
-                  <div key={order._id} className="p-4 border rounded-lg bg-gray-50">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-medium">Order #{order._id.slice(-6)}</div>
-                      <Badge className={getStatusColor(order.status)}>
+                  <div key={order._id} className="p-3 md:p-4 border rounded-lg bg-gray-50">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 space-y-2 md:space-y-0">
+                      <div className="font-medium text-sm md:text-base">Order #{order._id.slice(-6)}</div>
+                      <Badge className={`${getStatusColor(order.status)} text-xs`}>
                         {getStatusIcon(order.status)}
                         <span className="ml-1 capitalize">{order.status}</span>
                       </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">
+                    <div className="text-xs md:text-sm text-muted-foreground mb-2">
                       Customer: {order.user?.name || 'Unknown'}
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">
+                    <div className="text-xs md:text-sm text-muted-foreground mb-3">
                       Items: {(order.items || [])
                         .filter(item => item)
-                        .map((item: any) => item?.food?.name || item?.name || "")
+                        .map((item: OrderItem) => item?.food?.name || "")
                         .filter(Boolean)
                         .join(", ") || "Unknown"}
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Completed: {new Date(order.updatedAt || order.orderedAt).toLocaleString()}</span>
-                      <span className="font-medium">{order.total} ETB</span>
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
+                      <span className="text-xs md:text-sm text-muted-foreground">Completed: {new Date(order.updatedAt || order.orderedAt).toLocaleString()}</span>
+                      <span className="font-medium text-sm md:text-base">{order.total} ETB</span>
                     </div>
                   </div>
                 ))}
