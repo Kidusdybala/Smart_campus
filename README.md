@@ -49,12 +49,12 @@ The **Smart Campus Management System** is a cutting-edge full-stack web applicat
 
 ###  Key Highlights
 
-- ** AI-Powered Intelligence**: Advanced ML algorithms for personalized recommendations
-- ** Multi-Role Architecture**: Separate dashboards for Students, Staff, Admins, and Cafeteria
-- ** Real-Time Updates**: Live notifications and status updates across all modules
-- ** Secure Authentication**: JWT-based auth with role-based access control
-- ** Integrated Payments**: Chapa payment gateway with digital wallet system
-- ** Comprehensive Analytics**: Real-time dashboards and detailed reporting
+- **  AI-Powered Intelligence**: Advanced ML algorithms for personalized recommendations
+- **  Multi-Role Architecture**: Separate dashboards for Students, Staff, Admins, and Cafeteria
+- **  Real-Time Updates**: Live notifications and status updates across all modules
+- **  Secure Authentication**: JWT-based auth with role-based access control
+- **  Integrated Payments**: Chapa payment gateway with digital wallet system
+- **  Comprehensive Analytics**: Real-time dashboards and detailed reporting
 
 ---
 
