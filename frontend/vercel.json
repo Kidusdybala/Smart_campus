@@ -4,7 +4,7 @@
   "installCommand": "npm install",
   "functions": {
     "api/recommendations.py": {
-      "runtime": "python3"
+      "runtime": "python3.11"
     }
   },
   "rewrites": [
