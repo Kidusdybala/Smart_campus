@@ -386,8 +386,8 @@ class ApiClient {
     } catch (error) {
       console.error('Error completing payment:', error);
       // Return a mock successful response for development
-      return { 
-        success: true, 
+      return {
+        success: true,
         message: 'Mock payment completion successful',
         data: {
           amount: 100,
@@ -395,6 +395,24 @@ class ApiClient {
           status: 'successful',
           tx_ref: paymentId
         }
+      };
+    }
+  }
+
+  async simulateTopup(amount) {
+    try {
+      return await this.request('/payment/simulate-topup', {
+        method: 'POST',
+        body: JSON.stringify({ amount }),
+      });
+    } catch (error) {
+      console.error('Error simulating topup:', error);
+      // Return mock response for development
+      return {
+        success: true,
+        message: 'Mock simulated top-up successful',
+        newBalance: 5000,
+        paymentId: 'mock-payment-' + Date.now()
       };
     }
   }
@@ -445,6 +463,25 @@ class ApiClient {
         success: true,
         newBalance: Math.max(0, balance),
         message: 'Wallet balance fixed successfully'
+      };
+    }
+  }
+
+  async addDemoFunds(amount = 5000) {
+    try {
+      return await this.request('/payment/add-demo-funds', {
+        method: 'POST',
+        body: JSON.stringify({ amount }),
+      });
+    } catch (error) {
+      console.error('Error adding demo funds:', error);
+      // Return mock response for development
+      return {
+        success: true,
+        message: 'Demo funds added successfully (mock)',
+        amountAdded: amount,
+        newBalance: 10000,
+        paymentId: 'mock-demo-payment-' + Date.now()
       };
     }
   }

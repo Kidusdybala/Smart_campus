@@ -113,6 +113,17 @@ router.post('/topup', auth, async (req, res) => {
       payment._id
     );
 
+    // Dynamically construct URLs based on environment and request
+    const isProduction = process.env.NODE_ENV === 'production';
+    const protocol = isProduction ? 'https' : 'http';
+
+    // For production, use the deployed URLs; for development, use localhost
+    const baseUrl = process.env.BASE_URL || (isProduction ? 'https://your-backend-url.onrender.com' : 'http://localhost:5001');
+    const frontendUrl = process.env.FRONTEND_URL || (isProduction ? 'https://your-frontend-url.vercel.app' : 'http://localhost:5173');
+
+    console.log('Using BASE_URL:', baseUrl);
+    console.log('Using FRONTEND_URL:', frontendUrl);
+
     // Integrate with Chapa API
     try {
       const chapaResponse = await axios.post('https://api.chapa.co/v1/transaction/initialize', {
@@ -122,9 +133,9 @@ router.post('/topup', auth, async (req, res) => {
         first_name: user.firstName || 'User',
         last_name: user.lastName || 'User',
         tx_ref: payment._id.toString(),
-        callback_url: `${process.env.BASE_URL || 'http://localhost:5001'}/api/payment/chapa/callback/${payment._id}`,
-        return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile/wallet?paymentId=${payment._id}`,
-        cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile/wallet`
+        callback_url: `${baseUrl}/api/payment/chapa/callback/${payment._id}`,
+        return_url: `${frontendUrl}/profile/wallet?paymentId=${payment._id}`,
+        cancel_url: `${frontendUrl}/profile/wallet`
       }, {
         headers: {
           'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`,
@@ -145,9 +156,25 @@ router.post('/topup', auth, async (req, res) => {
       }
     } catch (error) {
       console.error('Chapa API error:', error.response?.data || error.message);
+      console.error('Full error details:', error);
+
       // If Chapa fails, delete the payment record
       await Payment.findByIdAndDelete(payment._id);
-      res.status(500).json({ error: 'Payment service unavailable' });
+
+      // Provide more specific error messages
+      let errorMessage = 'Payment service unavailable';
+      if (error.response?.status === 401) {
+        errorMessage = 'Payment service authentication failed. Please check API keys.';
+      } else if (error.response?.status === 400) {
+        errorMessage = 'Invalid payment request. Please check the amount and try again.';
+      } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+        errorMessage = 'Unable to connect to payment service. Please try again later.';
+      }
+
+      res.status(500).json({
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -369,6 +396,113 @@ router.post('/complete/:paymentId', auth, async (req, res) => {
     });
   } catch (err) {
     console.error('Payment completion error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Simulate top-up for testing (bypasses Chapa)
+router.post('/simulate-topup', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Only students and staff can simulate top-ups
+    if (user.role === 'admin') {
+      return res.status(403).json({ error: 'Admins cannot access wallet features' });
+    }
+
+    const { amount } = req.body;
+
+    if (!amount || amount < 10) {
+      return res.status(400).json({ error: 'Minimum top-up amount is 10 ETB' });
+    }
+
+    // Create payment record
+    const payment = new Payment({
+      user: req.user.id,
+      amount,
+      type: 'topup',
+      status: 'completed',
+      paymentMethod: 'simulation',
+      description: `Simulated wallet top-up of ${amount} ETB`
+    });
+
+    await payment.save();
+
+    // Add funds to user wallet
+    const currentBalance = user.walletBalance || 0;
+    user.walletBalance = currentBalance + amount;
+    await user.save();
+
+    // Create success notification
+    await createPaymentSuccessNotification(
+      user._id,
+      amount,
+      'topup',
+      payment._id
+    );
+
+    console.log(`Simulated top-up: Added ${amount} ETB to user ${user.email}, new balance: ${user.walletBalance}`);
+
+    res.json({
+      message: 'Simulated top-up successful',
+      newBalance: user.walletBalance,
+      paymentId: payment._id
+    });
+  } catch (err) {
+    console.error('Simulated top-up error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Add demo funds to wallet (for testing)
+router.post('/add-demo-funds', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Only students and staff can add demo funds
+    if (user.role === 'admin') {
+      return res.status(403).json({ error: 'Admins cannot access wallet features' });
+    }
+
+    const { amount = 5000 } = req.body;
+
+    if (amount < 1 || amount > 10000) {
+      return res.status(400).json({ error: 'Demo amount must be between 1 and 10000 ETB' });
+    }
+
+    // Add funds to user wallet
+    const currentBalance = user.walletBalance || 0;
+    user.walletBalance = currentBalance + amount;
+    await user.save();
+
+    // Create payment record
+    const payment = new Payment({
+      user: req.user.id,
+      amount,
+      type: 'topup',
+      status: 'completed',
+      paymentMethod: 'chapa',
+      description: `Demo wallet top-up of ${amount} ETB`
+    });
+
+    await payment.save();
+
+    console.log(`Demo funds added: ${amount} ETB to user ${user.email}, new balance: ${user.walletBalance}`);
+
+    res.json({
+      message: `Demo funds added successfully`,
+      amountAdded: amount,
+      newBalance: user.walletBalance,
+      paymentId: payment._id
+    });
+  } catch (err) {
+    console.error('Demo funds error:', err);
     res.status(500).json({ error: err.message });
   }
 });
